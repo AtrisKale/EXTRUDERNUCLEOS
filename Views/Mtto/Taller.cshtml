@@ -1,0 +1,178 @@
+﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
+
+
+@{
+    ViewData["Title"] = "TALLER DE IMPRESORAS STATUS";
+    Layout = "_LayoutTA";
+}
+
+@{
+    var videojet = Model.FirstOrDefault(x => x.LocationExtru == "TALLER DE IMPRESORAS" && x.Tipo == "VIDEOJET");
+    var linx = Model.FirstOrDefault(x => x.LocationExtru == "TALLER DE IMPRESORAS" && x.Tipo == "LINX");
+}
+
+
+   
+
+<form asp-controller="Impresoras" asp-action="GuardarTaller" method="post">
+    <h2 class="mb-4 text-center">STATUS DE IMPRESORAS EN TALLER</h2>
+    <div class="row">
+        <!-- Card Videojet -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-3">
+                <video autoplay loop muted playsinline class="card-img-top videotaller">
+                    <source src="~/videos/mecanicOgx_fin.mp4" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                        <h5 class="card-title">TALLER DE IMPRESORAS VIDEOJET</h5>
+                        <input type="hidden" name="impresoras[0].Id" value="@videojet?.Id" />
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <label>ID Videojet</label>
+                                <input name="impresoras[0].Codigo" value="@videojet?.Codigo"
+                                       class="form-control form-control-sm text-center" />
+                            </div>
+                            <div class="col-6">
+                                <label>Horas de núcleo restantes</label>
+                                <input name="impresoras[0].InkCoreRemainingHours" value="@videojet?.InkCoreRemainingHours"
+                                       class="form-control form-control-sm text-center" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <label>Tiempo Muerto</label>
+                                <input name="impresoras[0].Downtime" value="0" type="number" step="1" min="0"
+                                       class="form-control form-control-sm text-center" />
+                            </div>
+                            <div class="col-6">
+                                <label>Comentarios</label>
+                                <input name="impresoras[0].Comentario" value="@videojet?.Comentario"
+                                       class="form-control form-control-sm text-center" />
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="impresoras[0].LocationExtru" value="TALLER DE IMPRESORAS" />
+                        <input type="hidden" name="impresoras[0].Tipo" value="VIDEOJET" />
+                        <input type="hidden" name="impresoras[0].Status" value="MAINTENANCE" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Linx -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top videotaller">
+                        <source src="~/videos/mecanicAgx_fin.mp4" type="video/mp4">
+                        </video>
+                        <div class="card-body">
+                            <h5 class="card-title">TALLER DE IMPRESORAS LINX</h5>
+                            <input type="hidden" name="impresoras[1].Id" value="@linx?.Id" />
+
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <label>ID Linx</label>
+                                    <input name="impresoras[1].Codigo" value="@linx?.Codigo"
+                                           class="form-control form-control-sm text-center" />
+                                </div>
+                                <div class="col-6">
+                                    <label>Comentarios</label>
+                                    <input name="impresoras[1].Comentario" value="@linx?.Comentario"
+                                           class="form-control form-control-sm text-center" />
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="impresoras[1].LocationExtru" value="TALLER DE IMPRESORAS" />
+                            <input type="hidden" name="impresoras[1].Tipo" value="LINX" />
+                            <input type="hidden" name="impresoras[1].Status" value="MAINTENANCE" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Botón Guardar -->
+            <button type="submit" class="btn btn-primary">Guardar ambos</button>
+            <a asp-action="Index" class="btn btn-primary">Inicio</a>
+        </form>
+
+
+
+
+
+
+        @if (ViewBag.Mensaje == true)
+        {
+            <div class="modal fade show" id="mensajeModal" tabindex="-1" role="dialog"
+                 style="display:block; background-color:rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">✅ Se han actualizado los datos con éxito</h5>
+                            <button type="button" class="btn-close"
+                                    onclick="document.getElementById('mensajeModal').remove()"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p>Puedes verificar los cambios o continuar trabajando.</p>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <a href="@Url.Action("Index","Impresoras")" class="btn btn-primary">Ir al Index</a>
+                            <button class="btn btn-secondary"
+                                    onclick="document.getElementById('mensajeModal').remove()">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!----Modal Exportación de datos atualizado--->
+            <!-- Modal oculto -->
+            <div class="modal fade" id="mensajeModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">✅ Exportación automática realizada</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p id="mensajeTexto"></p>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <a href="@Url.Action(" Index","Impresoras")" class="btn btn-secondary">Cerrar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Script SignalR -->
+            @section Scripts {
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+                <script>
+                    const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/exportHub")
+                    .build();
+
+                    connection.on("ExportCompleted", function (fecha) {
+                    console.log("Evento recibido:", fecha);
+                    document.getElementById("mensajeTexto").innerText = "Última exportación: " + fecha;
+                    var modal = new bootstrap.Modal(document.getElementById("mensajeModal"));
+                    modal.show();
+                    });
+
+                    connection.start()
+                    .then(() => console.log("Conectado al Hub"))
+                    .catch(err => console.error("Error conexión SignalR:", err));
+                </script>
+
+            }
+
+
+        }

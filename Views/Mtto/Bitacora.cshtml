@@ -1,0 +1,441 @@
+﻿@model List<EXTRUDERNUCLEOS.Models.Bitacora>
+@{
+    bool modoEdicion = ViewBag.ModoEdicion ?? false;
+    int totalFilas = 10; // siempre mostrar 10 filas
+    Layout = "_LayoutMtto";
+}
+
+
+<div class="row">
+
+    <form asp-action="Bitacora" method="get" class="mb-3">
+        <div class="input-group">
+            <!-- Mostrar siempre el valor que se usó en el filtro -->
+            <input type="number" name="filtroId" class="form-control"
+                   placeholder="Filtrar por ID Videojet"
+                   value="@ViewBag.FiltroId" />
+            <button type="submit" class="btn btn-secondary">Filtrar</button>
+            <a asp-action="Bitacora" class="btn btn-outline-dark">Quitar filtro</a>
+        </div>
+    </form>
+
+
+    @if (ViewBag.SinRegistros == true)
+    {
+        <div class="alert alert-warning text-center mb-3">
+            ⚠ No existen registros en la base de datos
+        </div>
+    }
+
+
+
+    <!-- Tabla ocupa 3/4 -->
+    <div class="col-md-9">
+
+        <h2 class="mb-3">Bitácora de Impresoras</h2>
+
+        <form asp-action="GuardarBitacora"
+              asp-controller="Mtto"
+              method="post">
+
+            <!-- NUEVO REGISTRO -->
+            <div class="border rounded p-3 mb-4 bg-light">
+
+                <h5 class="mb-3">Nuevo registro</h5>
+
+                <div class="row g-2 align-items-end">
+
+                    <div class="col">
+                        <input name="nuevo.IdVideojet"
+                               class="form-control"
+                               placeholder="ID Videojet" />
+                    </div>
+
+                    <div class="col">
+                        <input name="nuevo.MotivoMtto"
+                               class="form-control"
+                               placeholder="Motivo de mtto" />
+                    </div>
+
+                    <div class="col">
+                        <input name="nuevo.Procedimiento"
+                               class="form-control"
+                               placeholder="Procedimiento" />
+                    </div>
+
+                    <div class="col">
+                        <input name="nuevo.Fecha"
+                               type="date"
+                               value="@DateTime.Today.ToString(" yyyy-MM-dd")"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col">
+                        <input name="nuevo.Turno"
+                               class="form-control"
+                               placeholder="Turno" />
+                    </div>
+
+                    <div class="col">
+                        <input name="nuevo.Pendientes"
+                               class="form-control"
+                               placeholder="Pendientes" />
+                    </div>
+
+                    <div class="col-auto">
+                        <button type="submit"
+                                class="btn btn-success">
+                            Agregar
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- HISTORIAL -->
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>ID Videojet</th>
+                        <th>Motivo de mtto</th>
+                        <th>Procedimiento</th>
+                        <th>Fecha</th>
+                        <th>Turno</th>
+                        <th>Pendientes</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var item = Model[i];
+
+                        <tr>
+
+                            <input type="hidden"
+                                   name="bitacora[@i].BitacoraId"
+                                   value="@item.BitacoraId" />
+
+                            <td>
+                                <input name="bitacora[@i].IdVideojet"
+                                       value="@item.IdVideojet"
+                                       class="form-control"
+                                @(modoEdicion ? "" : "readonly" ) />
+                            </td>
+
+                            <td>
+                                <input name="bitacora[@i].MotivoMtto"
+                                       value="@item.MotivoMtto"
+                                       class="form-control"
+                                @(modoEdicion ? "" : "readonly" ) />
+                            </td>
+
+                            <td>
+                                <input name="bitacora[@i].Procedimiento"
+                                       value="@item.Procedimiento"
+                                       class="form-control"
+                                @(modoEdicion ? "" : "readonly" ) />
+                            </td>
+
+                            <td>
+                                @if (item.BitacoraId > 0)
+                                {
+                                    <input value="@item.Fecha.ToString(" dd /MM/yyyy")"
+                                           class="form-control"
+                                           readonly />
+                                }
+                                else
+                                {
+                                    <input class="form-control"
+                                           readonly />
+                                }
+                            </td>
+
+                            <td>
+                                <input name="bitacora[@i].Turno"
+                                       value="@item.Turno"
+                                       class="form-control"
+                                @(modoEdicion ? "" : "readonly" ) />
+                            </td>
+
+                            <td>
+                                <input name="bitacora[@i].Pendientes"
+                                       value="@item.Pendientes"
+                                       class="form-control"
+                                @(modoEdicion ? "" : "readonly" ) />
+                            </td>
+
+                        </tr>
+                    }
+
+                    @for (int i = Model.Count; i < 8; i++)
+                    {
+                        <tr>
+                            <td><input class="form-control" readonly /></td>
+                            <td><input class="form-control" readonly /></td>
+                            <td><input class="form-control" readonly /></td>
+                            <td><input class="form-control" readonly /></td>
+                            <td><input class="form-control" readonly /></td>
+                            <td><input class="form-control" readonly /></td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+            <div class="mt-3">
+
+                @if (modoEdicion)
+                {
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Guardar cambios
+                    </button>
+                }
+                else
+                {
+                    <a asp-action="Bitacora"
+                           asp-route-editar="true"
+                           class="btn btn-primary">
+                        Editar
+                    </a>
+                }
+
+                    
+
+                <a asp-action="HistorialBitacora"
+                       class="btn btn-secondary ms-2">
+                    Ver historial completo
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- Columna del card (1/4) -->
+    <div class="col-md-3">
+        <!-- Primer cuadro: Taller de impresoras -->
+        <a asp-controller="Mtto" asp-action="Taller" class="card-link">
+            <div class="card shadow-sm">
+                <img src="~/images/taller.png" class="card-img-top" alt="Productos">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Backup</h5>
+                        <p class="card-text">Status de Taller de impresoras</p>
+                    </div>
+                </div>
+            </a>
+
+
+            <div class="card shadow-sm mt-3"
+                 style="
+                background-color: #f8fbfd;
+                border: 1px solid #d7e2ea;
+                border-radius: 12px;
+                overflow: hidden;
+                ">
+
+         
+
+
+
+                <div class="card-body text-center p-2">
+
+                    <!-- TÍTULO -->
+                    <div class="mb-1">
+
+                        <h5 class="card-title mb-0"
+                            style="
+                            font-weight: 600;
+                            color: #1f2d3d;
+                            font-size: 1.05rem;
+                            ">
+                            Contraseñas del día
+                        </h5>
+
+                        <small style="
+                            color: #6c757d;
+                            font-size: 0.75rem;
+                            ">
+                            Programación semanal
+                        </small>
+
+                    </div>
+
+
+                    <form id="formContrasenas">
+
+                        <!-- Menor separación vertical -->
+                        <div class="row gx-1 gy-0">
+
+                            <!-- DÍA 1 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha1"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd1"
+                                       placeholder="#1"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+
+                            <!-- DÍA 2 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha2"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd2"
+                                       placeholder="#2"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+
+                            <!-- DÍA 3 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha3"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd3"
+                                       placeholder="#3"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+
+                            <!-- DÍA 4 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha4"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd4"
+                                       placeholder="#4"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+
+                            <!-- DÍA 5 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha5"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd5"
+                                       placeholder="#5"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+
+                            <!-- DÍA 6 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha6"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd6"
+                                       placeholder="#6"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+
+                            <!-- DÍA 7 -->
+                            <div class="col-6">
+                                <input type="date"
+                                       id="fecha7"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text"
+                                       id="pwd7"
+                                       placeholder="#7"
+                                       class="form-control form-control-sm text-center"
+                                       style="height: 31px; font-size: 0.82rem;" />
+                            </div>
+
+                        </div>
+
+
+                        <!-- BOTÓN GUARDAR -->
+                        <div class="mt-1 pt-1"
+                             style="border-top: 1px solid #dce3e8;">
+
+                            <button type="button"
+                                    class="btn btn-sm btn-primary px-3 py-1"
+                                    style="
+                                border-radius: 6px;
+                                font-weight: 500;
+                                font-size: 0.80rem;
+                                "
+                                    onclick="guardarContrasenas()">
+
+                                Guardar
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <script>
+                        function guardarContrasenas() {
+                            for (let i = 1; i <= 7; i++) {
+                                localStorage.setItem("fecha" + i, document.getElementById("fecha" + i).value);
+                                localStorage.setItem("pwd" + i, document.getElementById("pwd" + i).value);
+                            }
+                            alert("Contraseñas guardadas en tu navegador.");
+                        }
+
+                        document.addEventListener("DOMContentLoaded", function () {
+                            for (let i = 1; i <= 7; i++) {
+                                if (localStorage.getItem("fecha" + i)) {
+                                    document.getElementById("fecha" + i).value = localStorage.getItem("fecha" + i);
+                                }
+                                if (localStorage.getItem("pwd" + i)) {
+                                    document.getElementById("pwd" + i).value = localStorage.getItem("pwd" + i);
+                                }
+                            }
+                        });
+            </script>

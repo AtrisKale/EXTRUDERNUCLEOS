@@ -1,0 +1,39 @@
+﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "Bitacora Mantenimiento Impresoras";
+    Layout = "_LayoutMtto";
+}
+
+<div class="container text-center mt-5">
+    <div class="row justify-content-center">
+        <!-- Primer cuadro -->
+        <div class="col-md-3">
+            <a asp-controller="Mtto" asp-action="Bitacora" class="card-link">
+                <div class="card shadow-sm">
+                    <img src="~/images/bitacora.png" class="card-img-top" alt="Productos">
+                        <div class="card-body">
+                            <h5 class="card-title">Bitácora</h5>
+                            <p class="card-text">Mantenimiento de las impresoras</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Segundo cuadro -->
+            <div class="col-md-3">
+                <a asp-controller="Mtto" asp-action="Videos" class="card-link">
+                    <div class="card shadow-sm">
+                        <img src="~/images/videosd.png" class="card-img-top" alt="Registro">
+                            <div class="card-body">
+                                <h5 class="card-title">Procedimientos</h5>
+                                <p class="card-text">Ayudas visuales</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>

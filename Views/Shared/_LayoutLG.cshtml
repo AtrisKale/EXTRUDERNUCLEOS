@@ -1,0 +1,157 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - TGProyecto</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    
+    <link rel="icon" type="image/png" href="~/images/iCona.png" />
+
+   
+
+    <style>
+            /* Fondo */
+            body {
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(to bottom, rgba(0,0,0,0.5), white), url('/images/toyoda.jpg') no-repeat center top;
+                background-size: cover;
+                background-attachment: fixed;
+            }
+
+            /* Contenedor principal */
+            .login-background {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 50vh;
+            }
+
+            /* Caja de login */
+            .login-container {
+                width: 300px;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                text-align: center;
+                background-color: rgba(255, 255, 255, 0.9);
+            }
+
+            /* Imagen/logo */
+
+
+            /*diseño de foto icon tg*/
+           
+            .login-container {
+                width: 300px; /* ancho de la caja */
+                padding: 30px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                text-align: center;
+                background-color: rgba(255, 255, 255, 0.9);
+                margin: 100px auto;
+            }
+ 
+            
+            .login-image {
+                width: 120px;
+                height: auto;
+                margin-bottom: 10px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            /* Etiquetas pequeñas */
+            .small-label {
+                font-size: 12px;
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            /* Grupos de formulario */
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            /* Mensajes de error */
+            .error-message {
+                color: red;
+                margin-top: 10px;
+                font-weight: bold;
+            }
+
+            /* Barra superior */
+            .topbar {
+                width: 100%;
+                background-color: #f5fbfe;
+                color: white;
+                padding: 10px;
+                text-align: center;
+                position: fixed;
+                top: 0;
+                left: 0;
+                color: #578cb9;
+                font-weight: bold;
+            }
+
+            /*diseño de password*/
+
+            .login-container {
+                width: 300px;
+                margin: 100px auto; /* centra la caja */
+                padding: 40px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                text-align: center;
+                background-color: #ffffff;
+            }
+
+            .small-label {
+                font-size: 12px; /* etiquetas más pequeñas */
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .error-message {
+                color: red;
+                margin-top: 10px;
+                font-weight: bold;
+            }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="topbar">
+            Bienvenido - Página de MTTO
+        </div>
+    </header>
+
+    <script>
+            function changeLanguage(lang) {
+                const currentPath = window.location.pathname; // mantiene la vista actual
+                window.location.href = currentPath + "?culture=" + lang + "&ui-culture=" + lang;
+            }
+    </script>
+
+
+
+
+
+
+    <div class="login-background">
+        @RenderBody()
+    </div>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

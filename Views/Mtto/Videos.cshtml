@@ -1,0 +1,365 @@
+﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "Bitacora Mantenimiento Impresoras";
+    Layout = "_LayoutMtto";
+}
+
+
+<div class="row g-3">
+
+    <!-- ==========================================
+             MINIATURA 1
+             ========================================== -->
+    <div class="col-md-4">
+
+        <div class="card shadow-sm">
+
+            <img src="~/images/valvulasg.png"
+                 class="card-img-top"
+                 alt="Miniatura video 1">
+
+                <div class="card-body text-center">
+
+                    <h5 class="card-title">
+                        Cambio de válvulas de inyección
+                    </h5>
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#videoModal"
+                            data-video="@Url.Content("~/videos/v88_final.mp4")"
+                            data-titulo="Cambio de válvulas de inyección">
+
+                        Ver video
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             MINIATURA 2
+             ========================================== -->
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <img src="~/images/cabezal.png"
+                     class="card-img-top"
+                     alt="Miniatura video 2">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Reemplazo de cabezal umbilical
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#videoModal"
+                                data-video="@Url.Content(" ~ /videos/demo2.mp4")"
+                                data-titulo="Reemplazo de cabezal umbilical">
+
+                            Ver video
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==========================================
+             MINIATURA 3
+             ========================================== -->
+            <div class="col-md-4">
+
+                <div class="card shadow-sm">
+
+                    <img src="~/images/nucleo.png"
+                         class="card-img-top"
+                         alt="Miniatura video 3">
+
+                        <div class="card-body text-center">
+
+                            <h5 class="card-title">
+                                Cambio de núcleo
+                            </h5>
+
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#videoModal"
+                                    data-video="@Url.Content(" ~ /videos/demo3.mp4")"
+                                    data-titulo="Cambio de núcleo">
+
+                                Ver video
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==========================================
+             MINIATURA 4
+             ========================================== -->
+                <div class="col-md-4">
+
+                    <div class="card shadow-sm">
+
+                        <img src="~/images/eht.png"
+                             class="card-img-top"
+                             alt="Miniatura video 4">
+
+                            <div class="card-body text-center">
+
+                                <h5 class="card-title">
+                                    Reemplazo de EHT
+                                </h5>
+
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#videoModal"
+                                        data-video="@Url.Content(" ~ /videos/demo4.mp4")"
+                                        data-titulo="Reemplazo de EHT">
+
+                                    Ver video
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==========================================
+         MODAL ÚNICO PARA TODOS LOS VIDEOS
+         ========================================== -->
+
+                <div class="modal fade"
+                     id="videoModal"
+                     tabindex="-1"
+                     aria-hidden="true">
+
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                        <div class="modal-content">
+
+                            <!-- ENCABEZADO -->
+                            <div class="modal-header">
+
+                                <h5 class="modal-title"
+                                    id="tituloVideo">
+
+                                    Video de mantenimiento
+
+                                </h5>
+
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Cerrar">
+                                </button>
+
+                            </div>
+
+
+                            <!-- CUERPO -->
+                            <div class="modal-body text-center">
+
+                                <!-- MENSAJE MIENTRAS CARGA -->
+                                <div id="cargandoVideo"
+                                     class="mb-3 text-secondary">
+
+                                    <div class="spinner-border spinner-border-sm me-2"
+                                         role="status">
+                                    </div>
+
+                                    Cargando video...
+
+                                </div>
+
+
+                                <!-- VIDEO -->
+                                <video id="videoMantenimiento"
+                                       width="100%"
+                                       controls
+                                       preload="auto"
+                                       playsinline>
+
+                                    Tu navegador no soporta reproducción de video.
+
+                                </video>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                @section Scripts
+                {
+                    <script>
+
+                        document.addEventListener("DOMContentLoaded", function () {
+
+                            const modalVideo =
+                                document.getElementById("videoModal");
+
+                            const video =
+                                document.getElementById("videoMantenimiento");
+
+                            const cargando =
+                                document.getElementById("cargandoVideo");
+
+                            const titulo =
+                                document.getElementById("tituloVideo");
+
+
+                            // ==========================================
+                            // CUANDO SE ABRE EL MODAL
+                            // ==========================================
+                            modalVideo.addEventListener("show.bs.modal", function (event) {
+
+                                const boton = event.relatedTarget;
+
+                                if (!boton) {
+                                    return;
+                                }
+
+
+                                // Obtener ruta
+                                const rutaVideo =
+                                    boton.getAttribute("data-video");
+
+
+                                // Obtener título
+                                const tituloSeleccionado =
+                                    boton.getAttribute("data-titulo");
+
+
+                                console.log("Ruta del video:", rutaVideo);
+
+
+                                // Mostrar mensaje de carga
+                                cargando.style.display = "block";
+
+
+                                // Cambiar título
+                                titulo.textContent =
+                                    tituloSeleccionado || "Video de mantenimiento";
+
+
+                                // Asignar video
+                                video.src = rutaVideo;
+
+
+                                // Comenzar carga / buffering
+                                video.load();
+
+                            });
+
+
+                            // ==========================================
+                            // YA TIENE SUFICIENTE VIDEO PARA REPRODUCIR
+                            // ==========================================
+                            video.addEventListener("canplay", function () {
+
+                                cargando.style.display = "none";
+
+                            });
+
+
+                            // ==========================================
+                            // VIDEO LISTO
+                            // ==========================================
+                            video.addEventListener("loadeddata", function () {
+
+                                cargando.style.display = "none";
+
+                            });
+
+
+                            // ==========================================
+                            // SI SE QUEDA ESPERANDO MÁS DATOS
+                            // ==========================================
+                            video.addEventListener("waiting", function () {
+
+                                cargando.style.display = "block";
+
+                            });
+
+
+                            // ==========================================
+                            // CUANDO EMPIEZA A REPRODUCIR
+                            // ==========================================
+                            video.addEventListener("playing", function () {
+
+                                cargando.style.display = "none";
+
+                            });
+
+
+                            // ==========================================
+                            // SI OCURRE ERROR AL CARGAR
+                            // ==========================================
+                            video.addEventListener("error", function () {
+
+                                cargando.style.display = "block";
+
+                                cargando.innerHTML =
+                                    '<span class="text-danger">' +
+                                    'No se pudo cargar el video.' +
+                                    '</span>';
+
+                                console.error(
+                                    "Error al cargar:",
+                                    video.currentSrc
+                                );
+
+                            });
+
+
+                            // ==========================================
+                            // CUANDO SE CIERRA EL MODAL
+                            // ==========================================
+                            modalVideo.addEventListener(
+                                "hidden.bs.modal",
+                                function () {
+
+                                    // Pausar pero NO quitar el src.
+                                    // Así evitamos tirar inmediatamente
+                                    // todo lo que ya había cargado.
+                                    video.pause();
+
+                                }
+                            );
+
+                        });
+
+                    </script>
+                }

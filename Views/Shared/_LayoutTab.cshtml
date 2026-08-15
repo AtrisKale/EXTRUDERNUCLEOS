@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+<link rel="icon" type="image/png" href="~/images/iCona.png" />
+
+
+
+
+    <style>
+
+        .table-dashboard {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-dashboard.compact th,
+.table-dashboard.compact td {
+    border: 1px solid #ccc;
+    padding: 4px 6px; /* más pequeño */
+    font-size: 12px;  /* texto reducido */
+}
+
+.view { display: inline; }
+.edit { display: none; }
+
+.sidebar {
+    width: 200px;
+    float: left;
+    background: #333;
+    color: white;
+    height: 100vh;
+    padding: 10px;
+}
+.content {
+    margin-left: 220px; /* deja espacio al sidebar */
+}
+
+
+
+    </style>
+</head>
+<body>
+    
+
+    <div class="sidebar">
+        <div class="sidebar-icon">
+            <img src="~/images/tgrmxi.png" alt="Logo" class="sidebar-image" />
+        </div>
+        <a asp-controller="Home" asp-action="Index">Inicio</a>
+        <a asp-controller="Account" asp-action="Registro">Registro</a>
+        <a asp-controller="Productos" asp-action="Index">Productos</a>
+        <a asp-controller="Contact" asp-action="Index">Contacto</a>
+    </div>
+
+    <script>
+function changeLanguage(lang) {
+    const currentPath = window.location.pathname; // mantiene la vista actual
+    window.location.href = currentPath + "?culture=" + lang + "&ui-culture=" + lang;
+}
+</script>
+
+
+
+
+    <div class="main-content">
+        @RenderBody()
+    </div>
+
+
+
+</body>
+</html>

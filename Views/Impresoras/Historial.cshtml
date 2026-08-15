@@ -1,0 +1,58 @@
+﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
+
+@{
+    ViewData["Title"] = "Historial de Impresoras";
+    Layout = "_Layout2";
+}
+
+<p>
+    <a asp-action="ExportarExcel" class="btn btn-success">Exportar a Excel</a>
+    <a asp-action="Index" class="btn btn-primary">Inicio</a>
+
+</p>
+
+<table class="table table-striped table-sm text-center">
+    <thead>
+        <tr>
+            <th>Location Extru</th>
+            <th>Código</th>
+            <th>Tipo</th>
+            <th>Aditivo</th>
+            <th>InkCoreRemainingHours</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Status</th>
+            <th>Downtime</th>
+            <th>Comentario</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Math.Max(Model.Count, 11); i++)
+        {
+            if (i < Model.Count)
+            {
+
+
+                <tr>
+                    <td>@Model[i].LocationExtru</td>
+                    <td>@Model[i].Codigo</td>
+                    <td>@Model[i].Tipo</td>
+                    <td>@Model[i].Additive</td>
+                    <td>@Model[i].InkCoreRemainingHours</td>
+                    <td>@Model[i].Fecha.ToString("dd/MM/yyyy")</td>
+                    <td>@Model[i].Hora.ToString(@"hh\:mm")</td>
+                    <td>@Model[i].Status</td>
+                    <td>@Model[i].Downtime.ToString("0")</td>
+                    <td>@Model[i].Comentario</td>
+
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td colspan="11">&nbsp;</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

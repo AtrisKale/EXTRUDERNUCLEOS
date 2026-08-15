@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] ?? "Toyoda Gosei") - TGPro</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    
+    <link rel="icon" type="image/png" href="~/images/iCona.png" />
+
+ 
+
+
+    <style>
+            /* Sidebar */
+            .sidebar {
+                width: 220px;
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 0;
+                background-color: #2c3e50;
+                transition: all 0.3s ease;
+            }
+
+                .sidebar .logo {
+                    width: 120px;
+                }
+
+            .sidebar-link {
+                display: block;
+                width: 100%;
+                padding: 12px 0;
+                text-align: center;
+                color: #ffffff;
+                text-decoration: none;
+                font-weight: 500;
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            /* Ajuste de tamaño para títulos principales */
+            h1 {
+                font-size: 1.9rem; /* más pequeño */
+                margin-bottom: 0.5rem;
+            }
+
+            /* Si tu título está dentro de la tarjeta */
+            .card-header h6 {
+                font-size: 0.65rem; /* reduce aún más */
+                margin: 0;
+            }
+
+
+
+                .sidebar-link:hover {
+                    background-color: #1e3a6b;
+                    color: #00aaff;
+                }
+
+            /* Contenido principal */
+            .content-area {
+                margin-left: 220px;
+                padding: 20px;
+            }
+
+            /* Card */
+            .card {
+                border-radius: 8px;
+                overflow: hidden;
+                transition: transform 0.2s ease-in-out;
+            }
+
+            /* Centrado de tablas */
+            .table th, .table td {
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            /* Ajustes de tamaño */
+            .card-body {
+                padding: 0.75rem;
+            }
+            .card:hover {
+                 transform: scale(1.05);
+             }
+            canvas {
+                max-height: 300px; /* altura máxima */
+                max-width: 100%; /* 🔧 ocupa todo el ancho disponible */
+            }
+
+
+
+            .table {
+                font-size: 0.75rem;
+            }
+
+
+            /* 🔧 NUEVO: Tabla más compacta */
+            /* 🔧 Ajuste compacto para la tabla de impresoras */
+            .card-impresoras {
+                /* ya no limitamos altura estricta para evitar recortes */
+                margin-bottom: 1rem;
+            }
+
+            .table-impresoras {
+                font-size: 0.50rem; /* fuente más pequeña */
+                table-layout: fixed;
+            }
+
+                .table-impresoras th,
+                .table-impresoras td {
+                    text-align: center;
+                    vertical-align: middle;
+                    padding: 0.35rem; /* reduce altura de filas */
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+            /* Botones debajo de la tabla siempre visibles */
+            .card-impresoras .mt-2 {
+                margin-top: 0.5rem;
+            }
+
+    </style>
+
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-auto sidebar text-white p-0">
+                <div class="d-flex flex-column align-items-center pt-3">
+                    <img src="~/images/tgrmxi.png" alt="Toyoda Gosei" class="logo mb-3">
+                        <a asp-controller="Home" asp-action="Index" class="sidebar-link">Inicio</a>
+                        <a asp-controller="Home" asp-action="Login" class="sidebar-link">Cerrar sesión</a>
+                    </div>
+                </div>
+
+                <!-- Contenido principal -->
+                <div class="col content-area">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        @RenderSection("Scripts", required: false)
+    </body>
+</html>

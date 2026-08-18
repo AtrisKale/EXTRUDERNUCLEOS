@@ -20,5 +20,5 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Esta fase se usa en producción o cuando se ejecuta desde VS en modo normal (valor predeterminado cuando no se usa la configuración de depuración)
-ENV CONNECTIONSTRINGS__DefaultConnection="Server=localhost;Database=EXTRUDERNUCLEOS;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+ENV CONNECTIONSTRINGS__DefaultConnection="Server=10.195.10.166,1433;Database=Mantenimiento;User Id= Manu; Password=2022.Tgram2;TrustServerCertificate=True;"
 ENTRYPOINT ["dotnet", "EXTRUDERNUCLEOS.dll"]

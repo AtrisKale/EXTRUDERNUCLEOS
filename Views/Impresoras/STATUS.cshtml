@@ -1,28 +1,36 @@
 ﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
 
-@{
+    @{
     ViewData["Title"] = "STATUS DE IMPRESORAS EN PRODUCCION";
     Layout = "_LayoutST";
-}
 
-<h2 class="mb-4 text-center">STATUS DE IMPRESORAS EN PRODUCCION</h2>
+    var impresorasTaller =
+    ViewBag.ImpresorasTaller as List<EXTRUDERNUCLEOS.Models.Impresora>
+    ?? new List<EXTRUDERNUCLEOS.Models.Impresora>
+    ();
 
-<form asp-action="ActualizarTodo" method="post">
 
-    @if (ViewBag.SinRegistros == true)
-    {
+    }
+
+
+    <h2 class="mb-4 text-center">STATUS DE IMPRESORAS EN PRODUCCION</h2>
+
+    <form asp-action="ActualizarTodo" method="post">
+
+        @if (ViewBag.SinRegistros == true)
+        {
         <div class="alert alert-warning text-center mb-3">
             <strong>No existen registros en la base de datos.</strong>
             Captura la información inicial y presiona Guardar.
         </div>
-    }
+        }
 
-    <div class="row">
-        <!-- Extruder 1 -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-3">
-                <video autoplay loop muted playsinline class="card-img-top">
-                    <source src="~/videos/extruder.mp4" type="video/mp4">
+        <div class="row">
+            <!-- Extruder 1 -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top">
+                        <source src="~/videos/extruder.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
                         <h5 class="card-title">Extruder 1 Videojet</h5>
@@ -39,7 +47,7 @@
                         <label>Horas núcleo restantes</label>
                         <input asp-for="@Model[0].InkCoreRemainingHours" class="form-control form-control-sm" />
                         <label>Tiempo muerto</label>
-                        <input asp-for="@Model[0].Downtime" value="@Model[0].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                        <input asp-for="@Model[0].Downtime" value="@Model[0].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
 
                         <input type="hidden" asp-for="@Model[0].Status" value="PRODUCCION" />
                         <input type="hidden" asp-for="@Model[0].Comentario" value="SIN COMENTARIOS" />
@@ -52,224 +60,456 @@
                 <div class="card shadow-sm mb-3">
                     <video autoplay loop muted playsinline class="card-img-top">
                         <source src="~/videos/extruder.mp4" type="video/mp4">
-                        </video>
+                    </video>
 
-                        <div class="card-body">
-                            <h5 class="card-title">Extruder 2 Videojet</h5>
+                    <div class="card-body">
+                        <h5 class="card-title">Extruder 2 Videojet</h5>
 
-                            <input type="hidden" asp-for="@Model[1].Id" />
-                            <input type="hidden" asp-for="@Model[1].LocationExtru" value="2" />
-                            <input type="hidden" asp-for="@Model[1].Tipo" value="VIDEOJET" />
+                        <input type="hidden" asp-for="@Model[1].Id" />
+                        <input type="hidden" asp-for="@Model[1].LocationExtru" value="2" />
+                        <input type="hidden" asp-for="@Model[1].Tipo" value="VIDEOJET" />
 
-                            <label>ID Videojet</label>
-                            <input asp-for="@Model[1].Codigo"
-                                   class="form-control form-control-sm" />
+                        <label>ID Videojet</label>
+                        <input asp-for="@Model[1].Codigo"
+                               class="form-control form-control-sm" />
 
-                            <label>Horas núcleo restantes</label>
-                            <input asp-for="@Model[1].InkCoreRemainingHours"
-                                   class="form-control form-control-sm" />
+                        <label>Horas núcleo restantes</label>
+                        <input asp-for="@Model[1].InkCoreRemainingHours"
+                               class="form-control form-control-sm" />
 
-                            <label>Tiempo muerto</label>
-                            <input asp-for="@Model[1].Downtime"
-                                   value="@Model[1].Downtime.ToString("0")"
-                                   type="number"
-                                   step="1"
-                                   min="0"
-                                   class="form-control form-control-sm" />
+                        <label>Tiempo muerto</label>
+                        <input asp-for="@Model[1].Downtime"
+                               value="@Model[1].Downtime.ToString(" 0")"
+                               type="number"
+                               step="1"
+                               min="0"
+                               class="form-control form-control-sm" />
 
-                            <input type="hidden" asp-for="@Model[1].Status" value="PRODUCCION" />
-                            <input type="hidden" asp-for="@Model[1].Comentario" value="SIN COMENTARIOS" />
-                        </div>
+                        <input type="hidden" asp-for="@Model[1].Status" value="PRODUCCION" />
+                        <input type="hidden" asp-for="@Model[1].Comentario" value="SIN COMENTARIOS" />
                     </div>
                 </div>
+            </div>
 
 
-                <!-- Retrabajo -->
-                <div class="col-md-4">
-                    <div class="card shadow-sm mb-3">
-                        <video autoplay loop muted playsinline class="card-img-top">
-                            <source src="~/videos/extruder.mp4" type="video/mp4">
-                            </video>
-                            <div class="card-body">
-                                <h5 class="card-title">Retrabajo Videojet</h5>
-                                <input type="hidden" asp-for="@Model[2].Id" />
-                                <input type="hidden" asp-for="@Model[2].LocationExtru" value="RETRABAJO" />
-                                <input type="hidden" asp-for="@Model[2].Tipo" value="VIDEOJET" />
-                                <label>ID Videojet</label>
-                                <input asp-for="@Model[2].Codigo" class="form-control form-control-sm" />
-                                <label>Horas núcleo restantes</label>
-                                <input asp-for="@Model[2].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                <label>Tiempo muerto</label>
-                                <input asp-for="@Model[2].Downtime" value="@Model[2].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                <input type="hidden" asp-for="@Model[2].Status" value="PRODUCCION" />
-                                <input type="hidden" asp-for="@Model[2].Comentario" value="SIN COMENTARIOS" />
-                            </div>
-                        </div>
+            <!-- Retrabajo -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top">
+                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                        <h5 class="card-title">Retrabajo Videojet</h5>
+                        <input type="hidden" asp-for="@Model[2].Id" />
+                        <input type="hidden" asp-for="@Model[2].LocationExtru" value="RETRABAJO" />
+                        <input type="hidden" asp-for="@Model[2].Tipo" value="VIDEOJET" />
+                        <label>ID Videojet</label>
+                        <input asp-for="@Model[2].Codigo" class="form-control form-control-sm" />
+                        <label>Horas núcleo restantes</label>
+                        <input asp-for="@Model[2].InkCoreRemainingHours" class="form-control form-control-sm" />
+                        <label>Tiempo muerto</label>
+                        <input asp-for="@Model[2].Downtime" value="@Model[2].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                        <input type="hidden" asp-for="@Model[2].Status" value="PRODUCCION" />
+                        <input type="hidden" asp-for="@Model[2].Comentario" value="SIN COMENTARIOS" />
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="row">
-                    <!-- Extruder 3 (dos impresoras) -->
-                    <div class="col-md-6">
-                        <div class="card shadow-sm mb-3">
-                            <video autoplay loop muted playsinline class="card-img-top video-large">
-                                <source src="~/videos/extruder.mp4" type="video/mp4">
-                                </video>
-                                <div class="card-body">
-                                    <h5 class="card-title">Extruder 3 Videojet (Tinta Blanca & Amarilla)</h5>
-                                    <div class="row">
-                                        <div class="col-6 border-end">
-                                            <input type="hidden" asp-for="@Model[3].Id" />
-                                            <input type="hidden" asp-for="@Model[3].LocationExtru" value="3" />
-                                            <input type="hidden" asp-for="@Model[3].Tipo" value="VIDEOJET" />
-                                            <label>ID Videojet</label>
-                                            <input asp-for="@Model[3].Codigo" class="form-control form-control-sm" />
-                                            <label>Horas núcleo restantes</label>
-                                            <input asp-for="@Model[3].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                            <label>Tiempo muerto</label>
-                                            <input asp-for="@Model[3].Downtime" value="@Model[3].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                            <input type="hidden" asp-for="@Model[3].Status" value="PRODUCCION" />
-                                            <input type="hidden" asp-for="@Model[3].Comentario" value="SIN COMENTARIOS" />
-                                        </div>
-                                        <div class="col-6">
-                                            <input type="hidden" asp-for="@Model[4].Id" />
-                                            <input type="hidden" asp-for="@Model[4].LocationExtru" value="3" />
-                                            <input type="hidden" asp-for="@Model[4].Tipo" value="VIDEOJET" />
-                                            <label>ID Videojet</label>
-                                            <input asp-for="@Model[4].Codigo" class="form-control form-control-sm" />
-                                            <label>Horas núcleo restantes</label>
-                                            <input asp-for="@Model[4].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                            <label>Tiempo muerto</label>
-                                            <input asp-for="@Model[4].Downtime" value="@Model[4].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                            <input type="hidden" asp-for="@Model[4].Status" value="PRODUCCION" />
-                                            <input type="hidden" asp-for="@Model[4].Comentario" value="SIN COMENTARIOS" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Extruder 4 -->
-                        <div class="col-md-6">
-                            <div class="card shadow-sm mb-3">
-                                <video autoplay loop muted playsinline class="card-img-top video-medium">
-                                    <source src="~/videos/extruder.mp4" type="video/mp4">
-                                    </video>
-                                    <div class="card-body">
-                                        <h5 class="card-title">Extruder 4 Videojet</h5>
-                                        <input type="hidden" asp-for="@Model[5].Id" />
-                                        <input type="hidden" asp-for="@Model[5].LocationExtru" value="4" />
-                                        <input type="hidden" asp-for="@Model[5].Tipo" value="VIDEOJET" />
-                                        <label>ID Videojet</label>
-                                        <input asp-for="@Model[5].Codigo" class="form-control form-control-sm" />
-                                        <label>Horas núcleo restantes</label>
-                                        <input asp-for="@Model[5].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                        <label>Tiempo muerto</label>
-                                        <input asp-for="@Model[5].Downtime" value="@Model[5].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                        <input type="hidden" asp-for="@Model[5].Status" value="PRODUCCION" />
-                                        <input type="hidden" asp-for="@Model[5].Comentario" value="SIN COMENTARIOS" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+        <div class="row">
+            <!-- Extruder 3 (dos impresoras) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top video-large">
+                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                        <h5 class="card-title">Extruder 3 Videojet (Tinta Blanca & Amarilla)</h5>
                         <div class="row">
-                            <!-- Extruder 5 -->
-                            <div class="col-md-6">
-                                <div class="card shadow-sm mb-3">
-                                    <video autoplay loop muted playsinline class="card-img-top video-medium">
-                                        <source src="~/videos/extruder.mp4" type="video/mp4">
-                                        </video>
-                                        <div class="card-body">
-                                            <h5 class="card-title">Extruder 5 Videojet (Aditivo)</h5>
-                                            <input type="hidden" asp-for="@Model[6].Id" />
-                                            <input type="hidden" asp-for="@Model[6].LocationExtru" value="5" />
-                                            <input type="hidden" asp-for="@Model[6].Tipo" value="VIDEOJET" />
-                                            <label>ID Videojet</label>
-                                            <input asp-for="@Model[6].Codigo" class="form-control form-control-sm" />
-                                            <label>Horas núcleo restantes</label>
-                                            <input asp-for="@Model[6].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                            <label>Tiempo muerto</label>
-                                            <input asp-for="@Model[6].Downtime" value="@Model[6].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                            <div class="form-group text-center mt-2">
-                                                <label class="form-label">Aditivo</label>
-                                                <input asp-for="@Model[6].Additive" class="form-check-input" type="checkbox" />
-                                                <input type="hidden" asp-for="@Model[6].Status" value="PRODUCCION" />
-                                                <input type="hidden" asp-for="@Model[6].Comentario" value="SIN COMENTARIOS" />
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="col-6 border-end">
+                                <input type="hidden" asp-for="@Model[3].Id" />
+                                <input type="hidden" asp-for="@Model[3].LocationExtru" value="3" />
+                                <input type="hidden" asp-for="@Model[3].Tipo" value="VIDEOJET" />
+                                <label>ID Videojet</label>
+                                <input asp-for="@Model[3].Codigo" class="form-control form-control-sm" />
+                                <label>Horas núcleo restantes</label>
+                                <input asp-for="@Model[3].InkCoreRemainingHours" class="form-control form-control-sm" />
+                                <label>Tiempo muerto</label>
+                                <input asp-for="@Model[3].Downtime" value="@Model[3].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                                <input type="hidden" asp-for="@Model[3].Status" value="PRODUCCION" />
+                                <input type="hidden" asp-for="@Model[3].Comentario" value="SIN COMENTARIOS" />
+                            </div>
+                            <div class="col-6">
+                                <input type="hidden" asp-for="@Model[4].Id" />
+                                <input type="hidden" asp-for="@Model[4].LocationExtru" value="3" />
+                                <input type="hidden" asp-for="@Model[4].Tipo" value="VIDEOJET" />
+                                <label>ID Videojet</label>
+                                <input asp-for="@Model[4].Codigo" class="form-control form-control-sm" />
+                                <label>Horas núcleo restantes</label>
+                                <input asp-for="@Model[4].InkCoreRemainingHours" class="form-control form-control-sm" />
+                                <label>Tiempo muerto</label>
+                                <input asp-for="@Model[4].Downtime" value="@Model[4].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                                <input type="hidden" asp-for="@Model[4].Status" value="PRODUCCION" />
+                                <input type="hidden" asp-for="@Model[4].Comentario" value="SIN COMENTARIOS" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extruder 4 -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top video-medium">
+                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                        <h5 class="card-title">Extruder 4 Videojet</h5>
+                        <input type="hidden" asp-for="@Model[5].Id" />
+                        <input type="hidden" asp-for="@Model[5].LocationExtru" value="4" />
+                        <input type="hidden" asp-for="@Model[5].Tipo" value="VIDEOJET" />
+                        <label>ID Videojet</label>
+                        <input asp-for="@Model[5].Codigo" class="form-control form-control-sm" />
+                        <label>Horas núcleo restantes</label>
+                        <input asp-for="@Model[5].InkCoreRemainingHours" class="form-control form-control-sm" />
+                        <label>Tiempo muerto</label>
+                        <input asp-for="@Model[5].Downtime" value="@Model[5].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                        <input type="hidden" asp-for="@Model[5].Status" value="PRODUCCION" />
+                        <input type="hidden" asp-for="@Model[5].Comentario" value="SIN COMENTARIOS" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Extruder 5 -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top video-medium">
+                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                        <h5 class="card-title">Extruder 5 Videojet (Aditivo)</h5>
+                        <input type="hidden" asp-for="@Model[6].Id" />
+                        <input type="hidden" asp-for="@Model[6].LocationExtru" value="5" />
+                        <input type="hidden" asp-for="@Model[6].Tipo" value="VIDEOJET" />
+                        <label>ID Videojet</label>
+                        <input asp-for="@Model[6].Codigo" class="form-control form-control-sm" />
+                        <label>Horas núcleo restantes</label>
+                        <input asp-for="@Model[6].InkCoreRemainingHours" class="form-control form-control-sm" />
+                        <label>Tiempo muerto</label>
+                        <input asp-for="@Model[6].Downtime" value="@Model[6].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                        <div class="form-group text-center mt-2">
+                            <label class="form-label">Aditivo</label>
+                            <input asp-for="@Model[6].Additive" class="form-check-input" type="checkbox" />
+                            <input type="hidden" asp-for="@Model[6].Status" value="PRODUCCION" />
+                            <input type="hidden" asp-for="@Model[6].Comentario" value="SIN COMENTARIOS" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extruder 6 (dos impresoras) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <video autoplay loop muted playsinline class="card-img-top video-large">
+                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                        <h5 class="card-title">Extruder 6 Videojet (Tinta Blanca & Amarilla)(Aditivo)</h5>
+                        <div class="row">
+                            <div class="col-6 border-end">
+                                <input type="hidden" asp-for="@Model[7].Id" />
+                                <input type="hidden" asp-for="@Model[7].LocationExtru" value="6" />
+                                <input type="hidden" asp-for="@Model[7].Tipo" value="VIDEOJET" />
+                                <label>ID Videojet</label>
+                                <input asp-for="@Model[7].Codigo" class="form-control form-control-sm" />
+                                <label>Horas núcleo restantes</label>
+                                <input asp-for="@Model[7].InkCoreRemainingHours" class="form-control form-control-sm" />
+                                <label>Tiempo muerto</label>
+                                <input asp-for="@Model[7].Downtime" value="@Model[7].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                                <div class="form-group text-center mt-2">
+                                    <label class="form-label">Aditivo</label>
+                                    <input asp-for="@Model[7].Additive" class="form-check-input" type="checkbox" />
                                 </div>
-
-                                <!-- Extruder 6 (dos impresoras) -->
-                                <div class="col-md-6">
-                                    <div class="card shadow-sm mb-3">
-                                        <video autoplay loop muted playsinline class="card-img-top video-large">
-                                            <source src="~/videos/extruder.mp4" type="video/mp4">
-                                            </video>
-                                            <div class="card-body">
-                                                <h5 class="card-title">Extruder 6 Videojet (Tinta Blanca & Amarilla)(Aditivo)</h5>
-                                                <div class="row">
-                                                    <div class="col-6 border-end">
-                                                        <input type="hidden" asp-for="@Model[7].Id" />
-                                                        <input type="hidden" asp-for="@Model[7].LocationExtru" value="6" />
-                                                        <input type="hidden" asp-for="@Model[7].Tipo" value="VIDEOJET" />
-                                                        <label>ID Videojet</label>
-                                                        <input asp-for="@Model[7].Codigo" class="form-control form-control-sm" />
-                                                        <label>Horas núcleo restantes</label>
-                                                        <input asp-for="@Model[7].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                                        <label>Tiempo muerto</label>
-                                                        <input asp-for="@Model[7].Downtime" value="@Model[7].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                                        <div class="form-group text-center mt-2">
-                                                            <label class="form-label">Aditivo</label>
-                                                            <input asp-for="@Model[7].Additive" class="form-check-input" type="checkbox" />
-                                                        </div>
-                                                        <input type="hidden" asp-for="@Model[7].Status" value="PRODUCCION" />
-                                                        <input type="hidden" asp-for="@Model[7].Comentario" value="SIN COMENTARIOS" />
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <input type="hidden" asp-for="@Model[8].Id" />
-                                                        <input type="hidden" asp-for="@Model[8].LocationExtru" value="6" />
-                                                        <input type="hidden" asp-for="@Model[8].Tipo" value="VIDEOJET" />
-                                                        <label>ID Videojet</label>
-                                                        <input asp-for="@Model[8].Codigo" class="form-control form-control-sm" />
-                                                        <label>Horas núcleo restantes</label>
-                                                        <input asp-for="@Model[8].InkCoreRemainingHours" class="form-control form-control-sm" />
-                                                        <label>Tiempo muerto</label>
-                                                        <input asp-for="@Model[8].Downtime" value="@Model[8].Downtime.ToString("0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-                                                        <input type="hidden" asp-for="@Model[8].Status" value="PRODUCCION" />
-                                                        <input type="hidden" asp-for="@Model[8].Comentario" value="SIN COMENTARIOS" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="hidden" asp-for="@Model[7].Status" value="PRODUCCION" />
+                                <input type="hidden" asp-for="@Model[7].Comentario" value="SIN COMENTARIOS" />
+                            </div>
+                            <div class="col-6">
+                                <input type="hidden" asp-for="@Model[8].Id" />
+                                <input type="hidden" asp-for="@Model[8].LocationExtru" value="6" />
+                                <input type="hidden" asp-for="@Model[8].Tipo" value="VIDEOJET" />
+                                <label>ID Videojet</label>
+                                <input asp-for="@Model[8].Codigo" class="form-control form-control-sm" />
+                                <label>Horas núcleo restantes</label>
+                                <input asp-for="@Model[8].InkCoreRemainingHours" class="form-control form-control-sm" />
+                                <label>Tiempo muerto</label>
+                                <input asp-for="@Model[8].Downtime" value="@Model[8].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
+                                <input type="hidden" asp-for="@Model[8].Status" value="PRODUCCION" />
+                                <input type="hidden" asp-for="@Model[8].Comentario" value="SIN COMENTARIOS" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
-                                <!-- Botón Guardar -->
-                                <button type="submit" class="btn btn-primary">Guardar</button>
+        <div class="mt-3">
 
-                                @if (ViewBag.Mensaje == true)
+            <button type="button"
+                    class="btn btn-warning"
+                    data-bs-toggle="modal"
+                    data-bs-target="#moverImpresoraModal">
+                🔄 Mover impresora
+            </button>
+
+            <button type="submit" class="btn btn-primary">
+                Guardar
+            </button>
+
+        </div>
+
+    </form>  @* ← CIERRA AQUÍ EL FORMULARIO DE ActualizarTodo *@
+
+    <div class="modal fade" id="moverImpresoraModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Mover impresora</h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <form asp-controller="Impresoras"
+                      asp-action="MoverImpresora"
+                      method="post">
+
+                    <div class="modal-body">
+
+                        <!-- IMPRESORA CON FALLA -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Impresora con falla
+                            </label>
+
+                            <select name="idDanada"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Seleccionar...
+                                </option>
+
+                                <optgroup label="Producción">
+
+                                    @foreach (var imp in Model.Where(x => x.Id > 0))
+                                    {
+                                    <option value="@imp.Id">
+                                        @imp.Codigo - @imp.Tipo - @imp.LocationExtru
+                                    </option>
+                                    }
+
+                                </optgroup>
+
+
+                                @if (impresorasTaller.Any())
                                 {
-                                    <div class="modal fade show" id="mensajeModal" tabindex="-1" role="dialog"
-                                         style="display:block; background-color:rgba(0,0,0,0.5);">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-success text-white">
-                                                    <h5 class="modal-title">✅ Se han actualizado los datos con éxito</h5>
-                                                    <button type="button" class="btn-close"
-                                                            onclick="document.getElementById('mensajeModal').remove()"></button>
-                                                </div>
-                                                <div class="modal-body text-center">
-                                                    <p>Puedes verificar los cambios o continuar trabajando.</p>
-                                                </div>
-                                                <div class="modal-footer justify-content-center">
-                                                    <a href="@Url.Action("Index","Impresoras")" class="btn btn-primary">Ir al Index</a>
-                                                    <a href="@Url.Action("STATUS","Impresoras")" class="btn btn-secondary">Cerrar</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <optgroup label="Taller de impresoras">
+
+                                    @foreach (var imp in impresorasTaller)
+                                    {
+                                    <option value="@imp.Id">
+                                        @imp.Codigo - @imp.Tipo - TALLER
+                                    </option>
+                                    }
+
+                                </optgroup>
                                 }
-                            </form>
+
+                            </select>
+                        </div>
+
+
+                        <!-- DOWNTIME -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Tiempo muerto por la falla
+                            </label>
+
+                            <input type="number"
+                                   name="downtime"
+                                   min="0"
+                                   step="1"
+                                   value="0"
+                                   class="form-control" />
+                        </div>
+
+                        <!-- MOTIVO O COMENTARIO -->
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Motivo del cambio
+                            </label>
+
+                            <textarea name="motivoCambio"
+                                      class="form-control"
+                                      rows="2"
+                                      maxlength="250"
+                                      placeholder="Ej. Falla de bomba, presión baja, mantenimiento preventivo, disparo de EHT..."></textarea>
+                        </div>
+
+
+
+                        <!-- REEMPLAZO -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Impresora que ocupará su lugar
+                            </label>
+
+                            <select name="idReemplazo"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">Seleccionar...</option>
+
+                                <optgroup label="Producción">
+
+                                    @foreach (var imp in Model.Where(x => x.Id > 0))
+                                    {
+                                    <option value="@imp.Id">
+                                        @imp.Codigo - @imp.Tipo - @imp.LocationExtru
+                                    </option>
+                                    }
+
+                                </optgroup>
+
+                                @if (impresorasTaller.Any())
+                                {
+                                <optgroup label="Taller de impresoras">
+
+                                    @foreach (var imp in impresorasTaller)
+                                    {
+                                    <option value="@imp.Id">
+                                        @imp.Codigo - @imp.Tipo - TALLER
+                                    </option>
+                                    }
+
+                                </optgroup>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <div class="alert alert-info mb-0">
+                            La impresora con falla será enviada al Taller.
+                            La impresora de reemplazo ocupará automáticamente
+                            su ubicación actual.
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-warning">
+                            Confirmar movimiento
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    @if (TempData["DatosActualizados"] != null)
+    {
+    <div class="modal fade show" id="mensajeModal" tabindex="-1" role="dialog"
+         style="display:block; background-color:rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">✅ Se han actualizado los datos con éxito</h5>
+                    <button type="button" class="btn-close"
+                            onclick="document.getElementById('mensajeModal').remove()"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Puedes verificar los cambios o continuar trabajando.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="@Url.Action("Index","Impresoras")" class="btn btn-primary">Ir al Index</a>
+                    <a href="@Url.Action("STATUS","Impresoras")" class="btn btn-secondary">Cerrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+
+    @if (TempData["MovimientoRealizado"] != null)
+    {
+    <div class="modal fade show"
+         id="movimientoModal"
+         tabindex="-1"
+         role="dialog"
+         style="display:block; background-color:rgba(0,0,0,0.5);">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        ✅ Movimiento realizado con éxito
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            onclick="document.getElementById('movimientoModal').remove()">
+                    </button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p>
+                        La impresora fue enviada a Taller y la impresora de reemplazo ocupó su ubicación correctamente.
+                    </p>
+                </div>
+
+                <div class="modal-footer justify-content-center">
+
+                    <a href="@Url.Action("Index","Impresoras")"
+                       class="btn btn-primary">
+                        Ir al Análisis
+                    </a>
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            onclick="document.getElementById('movimientoModal').remove()">
+                        Cerrar
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    }
+
+
+
+
+

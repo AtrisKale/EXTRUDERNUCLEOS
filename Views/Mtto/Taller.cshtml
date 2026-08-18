@@ -1,178 +1,875 @@
 ﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
 
-
-@{
+    @{
     ViewData["Title"] = "TALLER DE IMPRESORAS STATUS";
     Layout = "_LayoutTA";
-}
+    }
 
-@{
-    var videojet = Model.FirstOrDefault(x => x.LocationExtru == "TALLER DE IMPRESORAS" && x.Tipo == "VIDEOJET");
-    var linx = Model.FirstOrDefault(x => x.LocationExtru == "TALLER DE IMPRESORAS" && x.Tipo == "LINX");
-}
+    @{
+    var videojet = Model
+    .Where(x => x.LocationExtru == "TALLER DE IMPRESORAS" && x.Tipo == "VIDEOJET")
+    .OrderBy(x => x.Id)
+    .FirstOrDefault();
+
+    var linx = Model
+    .Where(x => x.LocationExtru == "TALLER DE IMPRESORAS" && x.Tipo == "LINX")
+    .OrderBy(x => x.Id)
+    .FirstOrDefault();
+
+    var tercera = Model
+    .Where(x => x.LocationExtru == "TALLER DE IMPRESORAS")
+    .Where(x => x.Id != videojet?.Id && x.Id != linx?.Id)
+    .OrderBy(x => x.Id)
+    .FirstOrDefault();
+
+    var claseCard = tercera != null ? "col-md-4" : "col-md-6";
+    }
 
 
-   
+    <form asp-controller="Impresoras"
+          asp-action="GuardarTaller"
+          method="post">
 
-<form asp-controller="Impresoras" asp-action="GuardarTaller" method="post">
-    <h2 class="mb-4 text-center">STATUS DE IMPRESORAS EN TALLER</h2>
-    <div class="row">
-        <!-- Card Videojet -->
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-3">
-                <video autoplay loop muted playsinline class="card-img-top videotaller">
-                    <source src="~/videos/mecanicOgx_fin.mp4" type="video/mp4">
+        <h2 class="mb-4 text-center">
+            STATUS DE IMPRESORAS EN TALLER
+        </h2>
+
+        <div class="row">
+
+            <!-- CARD VIDEOJET -->
+            <div class="@claseCard">
+                <div class="card shadow-sm mb-3">
+
+                    <video autoplay loop muted playsinline
+                           class="card-img-top videotaller">
+                        <source src="~/videos/mecanicOgx_fin.mp4"
+                                type="video/mp4">
                     </video>
+
                     <div class="card-body">
-                        <h5 class="card-title">TALLER DE IMPRESORAS VIDEOJET</h5>
-                        <input type="hidden" name="impresoras[0].Id" value="@videojet?.Id" />
+
+                        <h5 class="card-title">
+                            TALLER DE IMPRESORAS VIDEOJET
+                        </h5>
+
+                        <input type="hidden"
+                               name="impresoras[0].Id"
+                               value="@videojet?.Id" />
 
                         <div class="row mb-2">
+
                             <div class="col-6">
                                 <label>ID Videojet</label>
-                                <input name="impresoras[0].Codigo" value="@videojet?.Codigo"
+
+                                <input name="impresoras[0].Codigo"
+                                       value="@videojet?.Codigo"
                                        class="form-control form-control-sm text-center" />
                             </div>
+
                             <div class="col-6">
                                 <label>Horas de núcleo restantes</label>
-                                <input name="impresoras[0].InkCoreRemainingHours" value="@videojet?.InkCoreRemainingHours"
+
+                                <input name="impresoras[0].InkCoreRemainingHours"
+                                       value="@videojet?.InkCoreRemainingHours"
                                        class="form-control form-control-sm text-center" />
                             </div>
+
                         </div>
 
                         <div class="row mb-2">
+
                             <div class="col-6">
                                 <label>Tiempo Muerto</label>
-                                <input name="impresoras[0].Downtime" value="0" type="number" step="1" min="0"
+
+                                <input name="impresoras[0].Downtime"
+                                       value="0"
+                                       type="number"
+                                       step="1"
+                                       min="0"
                                        class="form-control form-control-sm text-center" />
                             </div>
+
                             <div class="col-6">
                                 <label>Comentarios</label>
-                                <input name="impresoras[0].Comentario" value="@videojet?.Comentario"
+
+                                <input name="impresoras[0].Comentario"
+                                       value="@videojet?.Comentario"
                                        class="form-control form-control-sm text-center" />
                             </div>
+
                         </div>
 
-                        <input type="hidden" name="impresoras[0].LocationExtru" value="TALLER DE IMPRESORAS" />
-                        <input type="hidden" name="impresoras[0].Tipo" value="VIDEOJET" />
-                        <input type="hidden" name="impresoras[0].Status" value="MAINTENANCE" />
+                        <input type="hidden"
+                               name="impresoras[0].LocationExtru"
+                               value="TALLER DE IMPRESORAS" />
+
+                        <input type="hidden"
+                               name="impresoras[0].Tipo"
+                               value="VIDEOJET" />
+
+                        <input type="hidden"
+                               name="impresoras[0].Status"
+                               value="MAINTENANCE" />
+
+
+                        @if (videojet != null &&
+                        !string.IsNullOrWhiteSpace(videojet.Codigo))
+                        {
+                        <button type="button"
+                                class="btn btn-danger btn-sm mt-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#retirarVideojetModal">
+                            Retirar del taller
+                        </button>
+                        }
+
                     </div>
                 </div>
             </div>
 
-            <!-- Card Linx -->
-            <div class="col-md-6">
-                <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top videotaller">
-                        <source src="~/videos/mecanicAgx_fin.mp4" type="video/mp4">
-                        </video>
-                        <div class="card-body">
-                            <h5 class="card-title">TALLER DE IMPRESORAS LINX</h5>
-                            <input type="hidden" name="impresoras[1].Id" value="@linx?.Id" />
 
-                            <div class="row mb-2">
-                                <div class="col-6">
-                                    <label>ID Linx</label>
-                                    <input name="impresoras[1].Codigo" value="@linx?.Codigo"
-                                           class="form-control form-control-sm text-center" />
-                                </div>
-                                <div class="col-6">
-                                    <label>Comentarios</label>
-                                    <input name="impresoras[1].Comentario" value="@linx?.Comentario"
-                                           class="form-control form-control-sm text-center" />
-                                </div>
+            <!-- CARD LINX -->
+            <div class="@claseCard">
+                <div class="card shadow-sm mb-3">
+
+                    <video autoplay loop muted playsinline
+                           class="card-img-top videotaller">
+                        <source src="~/videos/mecanicAgx_fin.mp4"
+                                type="video/mp4">
+                    </video>
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            TALLER DE IMPRESORAS LINX
+                        </h5>
+
+                        <input type="hidden"
+                               name="impresoras[1].Id"
+                               value="@linx?.Id" />
+
+                        <div class="row mb-2">
+
+                            <div class="col-6">
+                                <label>ID Linx</label>
+
+                                <input name="impresoras[1].Codigo"
+                                       value="@linx?.Codigo"
+                                       class="form-control form-control-sm text-center" />
                             </div>
 
-                            <input type="hidden" name="impresoras[1].LocationExtru" value="TALLER DE IMPRESORAS" />
-                            <input type="hidden" name="impresoras[1].Tipo" value="LINX" />
-                            <input type="hidden" name="impresoras[1].Status" value="MAINTENANCE" />
+                            <div class="col-6">
+                                <label>Comentarios</label>
+
+                                <input name="impresoras[1].Comentario"
+                                       value="@linx?.Comentario"
+                                       class="form-control form-control-sm text-center" />
+                            </div>
+
                         </div>
+
+                        <input type="hidden"
+                               name="impresoras[1].LocationExtru"
+                               value="TALLER DE IMPRESORAS" />
+
+                        <input type="hidden"
+                               name="impresoras[1].Tipo"
+                               value="LINX" />
+
+                        <input type="hidden"
+                               name="impresoras[1].Status"
+                               value="MAINTENANCE" />
+
                     </div>
                 </div>
             </div>
 
 
+            <!-- CARD TERCERA IMPRESORA -->
+            @if (tercera != null)
+            {
+            <div class="@claseCard">
+
+                <div class="card shadow-sm mb-3">
+
+                    @if (tercera.Tipo == "VIDEOJET")
+                    {
+                    <video autoplay loop muted playsinline
+                           class="card-img-top videotaller">
+
+                        <source src="~/videos/mecanicOgx_fin.mp4"
+                                type="video/mp4">
+
+                    </video>
+                    }
+                    else
+                    {
+                    <video autoplay loop muted playsinline
+                           class="card-img-top videotaller">
+
+                        <source src="~/videos/mecanicAgx_fin.mp4"
+                                type="video/mp4">
+
+                    </video>
+                    }
 
 
-            <!-- Botón Guardar -->
-            <button type="submit" class="btn btn-primary">Guardar ambos</button>
-            <a asp-action="Index" class="btn btn-primary">Inicio</a>
-        </form>
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            IMPRESORA ADICIONAL - @tercera.Tipo
+                        </h5>
+
+                        <input type="hidden"
+                               name="impresoras[2].Id"
+                               value="@tercera.Id" />
+
+                        <div class="row mb-2">
+
+                            <div class="col-6">
+
+                                <label>ID Impresora</label>
+
+                                <input name="impresoras[2].Codigo"
+                                       value="@tercera.Codigo"
+                                       class="form-control form-control-sm text-center" />
+
+                            </div>
 
 
+                            @if (tercera.Tipo == "VIDEOJET")
+                            {
+                            <div class="col-6">
 
+                                <label>
+                                    Horas de núcleo restantes
+                                </label>
 
+                                <input name="impresoras[2].InkCoreRemainingHours"
+                                       value="@tercera.InkCoreRemainingHours"
+                                       class="form-control form-control-sm text-center" />
 
+                            </div>
+                            }
 
-        @if (ViewBag.Mensaje == true)
-        {
-            <div class="modal fade show" id="mensajeModal" tabindex="-1" role="dialog"
-                 style="display:block; background-color:rgba(0,0,0,0.5);">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header bg-success text-white">
-                            <h5 class="modal-title">✅ Se han actualizado los datos con éxito</h5>
-                            <button type="button" class="btn-close"
-                                    onclick="document.getElementById('mensajeModal').remove()"></button>
                         </div>
-                        <div class="modal-body text-center">
-                            <p>Puedes verificar los cambios o continuar trabajando.</p>
+
+
+                        <div class="row mb-2">
+
+                            <div class="col-6">
+
+                                <label>Tiempo Muerto</label>
+
+                                <input name="impresoras[2].Downtime"
+                                       value="0"
+                                       type="number"
+                                       step="1"
+                                       min="0"
+                                       class="form-control form-control-sm text-center" />
+
+                            </div>
+
+                            <div class="col-6">
+
+                                <label>Comentarios</label>
+
+                                <input name="impresoras[2].Comentario"
+                                       value="@tercera.Comentario"
+                                       class="form-control form-control-sm text-center" />
+
+                            </div>
+
                         </div>
-                        <div class="modal-footer justify-content-center">
-                            <a href="@Url.Action("Index","Impresoras")" class="btn btn-primary">Ir al Index</a>
-                            <button class="btn btn-secondary"
-                                    onclick="document.getElementById('mensajeModal').remove()">
-                                Cerrar
-                            </button>
-                        </div>
+
+
+                        <input type="hidden"
+                               name="impresoras[2].LocationExtru"
+                               value="TALLER DE IMPRESORAS" />
+
+                        <input type="hidden"
+                               name="impresoras[2].Tipo"
+                               value="@tercera.Tipo" />
+
+                        <input type="hidden"
+                               name="impresoras[2].Status"
+                               value="MAINTENANCE" />
+
+
+                        <button type="button"
+                                class="btn btn-danger btn-sm mt-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#retirarTallerModal">
+                            Retirar del taller
+                        </button>
+
                     </div>
+
                 </div>
+
             </div>
-
-
-
-            <!----Modal Exportación de datos atualizado--->
-            <!-- Modal oculto -->
-            <div class="modal fade" id="mensajeModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header bg-success text-white">
-                            <h5 class="modal-title">✅ Exportación automática realizada</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body text-center">
-                            <p id="mensajeTexto"></p>
-                        </div>
-                        <div class="modal-footer justify-content-center">
-                            <a href="@Url.Action(" Index","Impresoras")" class="btn btn-secondary">Cerrar</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Script SignalR -->
-            @section Scripts {
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-
-                <script>
-                    const connection = new signalR.HubConnectionBuilder()
-                    .withUrl("/exportHub")
-                    .build();
-
-                    connection.on("ExportCompleted", function (fecha) {
-                    console.log("Evento recibido:", fecha);
-                    document.getElementById("mensajeTexto").innerText = "Última exportación: " + fecha;
-                    var modal = new bootstrap.Modal(document.getElementById("mensajeModal"));
-                    modal.show();
-                    });
-
-                    connection.start()
-                    .then(() => console.log("Conectado al Hub"))
-                    .catch(err => console.error("Error conexión SignalR:", err));
-                </script>
-
             }
 
+        </div>
 
+
+        @if (tercera == null)
+        {
+        <button type="button"
+                class="btn btn-success btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#agregarImpresoraModal">
+
+            + Añadir impresora
+
+        </button>
         }
+
+
+        <button type="submit"
+                class="btn btn-primary">
+            Guardar
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-primary">
+            Inicio
+        </a>
+
+    </form>
+
+
+
+    <!-- ========================================= -->
+    <!-- MODAL AÑADIR IMPRESORA -->
+    <!-- ========================================= -->
+    @if (tercera == null)
+    {
+    <div class="modal fade"
+         id="agregarImpresoraModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Añadir impresora al taller
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <form asp-controller="Impresoras"
+                      asp-action="AgregarAlTaller"
+                      method="post">
+
+                    <div class="modal-body">
+
+                        <label class="form-label">
+                            Selecciona la impresora
+                        </label>
+
+                        <select name="id"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                -- Seleccionar --
+                            </option>
+
+                            @foreach (var imp in Model
+                            .Where(x =>
+                            x.LocationExtru != "TALLER DE IMPRESORAS")
+                            .OrderBy(x => x.LocationExtru)
+                            .ThenBy(x => x.Codigo))
+                            {
+                            <option value="@imp.Id">
+
+                                ID @imp.Codigo -
+                                @imp.Tipo -
+                                @imp.LocationExtru
+
+                                @(imp.Additive ? "- ADITIVO" : "")
+
+                            </option>
+                            }
+
+                        </select>
+
+
+                        <div class="alert alert-info mt-3 mb-0">
+
+                            Se utilizará el registro existente de esta impresora.
+                            No se creará una impresora nueva.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-success">
+                            Añadir al taller
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    }
+
+
+
+    <!-- ========================================= -->
+    <!-- MODAL RETIRAR VIDEOJET PRINCIPAL -->
+    <!-- ========================================= -->
+    @if (videojet != null &&
+    !string.IsNullOrWhiteSpace(videojet.Codigo))
+    {
+    <div class="modal fade"
+         id="retirarVideojetModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Retirar Videojet del taller
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <form asp-controller="Impresoras"
+                      asp-action="RetirarDelTaller"
+                      method="post">
+
+                    <div class="modal-body">
+
+                        <input type="hidden"
+                               name="id"
+                               value="@videojet.Id" />
+
+
+                        <p>
+                            Impresora:
+                            <strong>
+                                @videojet.Codigo - @videojet.Tipo
+                            </strong>
+                        </p>
+
+
+                        <label class="form-label">
+                            ¿A qué ubicación regresará?
+                        </label>
+
+
+                        <select name="nuevaUbicacion"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                Seleccionar...
+                            </option>
+
+                            <option value="1">Extruder #1</option>
+                            <option value="2">Extruder #2</option>
+                            <option value="RETRABAJO">Retrabajo</option>
+                            <option value="3">Extruder #3</option>
+                            <option value="4">Extruder #4</option>
+                            <option value="5">Extruder #5</option>
+                            <option value="6">Extruder #6</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger">
+                            Retirar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    }
+
+
+
+    <!-- ========================================= -->
+    <!-- MODAL RETIRAR TERCERA IMPRESORA -->
+    <!-- ========================================= -->
+    @if (tercera != null)
+    {
+    <div class="modal fade"
+         id="retirarTallerModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Retirar impresora del taller
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <form asp-controller="Impresoras"
+                      asp-action="RetirarDelTaller"
+                      method="post">
+
+                    <div class="modal-body">
+
+                        <input type="hidden"
+                               name="id"
+                               value="@tercera.Id" />
+
+
+                        <p>
+                            Impresora:
+                            <strong>
+                                @tercera.Codigo - @tercera.Tipo
+                            </strong>
+                        </p>
+
+
+                        <label class="form-label">
+                            Regresar impresora a:
+                        </label>
+
+
+                        <select name="nuevaUbicacion"
+                                class="form-select"
+                                required>
+
+                            <option value="">
+                                Seleccionar...
+                            </option>
+
+                            <option value="1">Extruder #1</option>
+                            <option value="2">Extruder #2</option>
+                            <option value="RETRABAJO">Retrabajo</option>
+                            <option value="3">Extruder #3</option>
+                            <option value="4">Extruder #4</option>
+                            <option value="5">Extruder #5</option>
+                            <option value="6">Extruder #6</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger">
+                            Retirar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    }
+
+
+
+    <!-- ========================================= -->
+    <!-- MODAL SI EL DESTINO YA ESTÁ OCUPADO -->
+    <!-- ========================================= -->
+    @if (TempData["RetiroPendienteId"] != null &&
+    TempData["RetiroDestino"] != null)
+    {
+    var idRetiro =
+    Convert.ToInt32(TempData["RetiroPendienteId"]);
+
+    var destinoRetiro =
+    TempData["RetiroDestino"]?.ToString();
+
+
+    var impresoraRetiro = Model
+    .FirstOrDefault(x => x.Id == idRetiro);
+
+
+    var ocupantesDestino = Model
+    .Where(x =>
+    x.LocationExtru == destinoRetiro &&
+    x.Id != idRetiro)
+    .OrderBy(x => x.Id)
+    .ToList();
+
+
+    <div class="modal fade show"
+         id="conflictoRetiroModal"
+         tabindex="-1"
+         role="dialog"
+         style="display:block; background-color:rgba(0,0,0,0.5);">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header bg-warning">
+
+                    <h5 class="modal-title">
+                        ⚠ Ubicación ocupada
+                    </h5>
+
+                </div>
+
+
+                <form asp-controller="Impresoras"
+                      asp-action="RetirarDelTaller"
+                      method="post">
+
+                    <div class="modal-body">
+
+
+                        <input type="hidden"
+                               name="id"
+                               value="@idRetiro" />
+
+
+                        <input type="hidden"
+                               name="nuevaUbicacion"
+                               value="@destinoRetiro" />
+
+
+                        <p>
+                            Quieres regresar:
+                            <strong>
+                                @impresoraRetiro?.Codigo -
+                                @impresoraRetiro?.Tipo
+                            </strong>
+                        </p>
+
+
+                        <p>
+                            La ubicación
+                            <strong>@destinoRetiro</strong>
+                            ya está ocupada.
+                        </p>
+
+
+                        <div class="alert alert-warning">
+
+                            Antes de regresar la impresora reparada,
+                            selecciona qué hacer con la impresora
+                            que actualmente ocupa ese lugar.
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Impresora que se moverá
+                            </label>
+
+
+                            <select name="idDesplazada"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Seleccionar...
+                                </option>
+
+
+                                @foreach (var imp in ocupantesDestino)
+                                {
+                                <option value="@imp.Id">
+
+                                    @imp.Codigo -
+                                    @imp.Tipo -
+                                    @imp.LocationExtru
+
+                                </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Mover esa impresora a:
+                            </label>
+
+
+                            <select name="ubicacionDesplazada"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Seleccionar...
+                                </option>
+
+                                <option value="1">Extruder #1</option>
+                                <option value="2">Extruder #2</option>
+                                <option value="RETRABAJO">Retrabajo</option>
+                                <option value="3">Extruder #3</option>
+                                <option value="4">Extruder #4</option>
+                                <option value="5">Extruder #5</option>
+                                <option value="6">Extruder #6</option>
+
+                                <option value="TALLER DE IMPRESORAS">
+                                    Taller de impresoras
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <a asp-controller="Mtto"
+                           asp-action="Taller"
+                           class="btn btn-secondary">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-warning">
+                            Confirmar movimiento
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    }
+
+
+
+    <!-- ========================================= -->
+    <!-- MODAL GUARDADO CORRECTAMENTE -->
+    <!-- ========================================= -->
+    @if (ViewBag.Mensaje == true)
+    {
+    <div class="modal fade show"
+         id="mensajeModal"
+         tabindex="-1"
+         role="dialog"
+         style="display:block; background-color:rgba(0,0,0,0.5);">
+
+        <div class="modal-dialog modal-dialog-centered"
+             role="document">
+
+            <div class="modal-content">
+
+                <div class="modal-header bg-success text-white">
+
+                    <h5 class="modal-title">
+                        ✅ Se han actualizado los datos con éxito
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            onclick="document.getElementById('mensajeModal').remove()">
+                    </button>
+
+                </div>
+
+                <div class="modal-body text-center">
+
+                    <p>
+                        Puedes verificar los cambios o continuar trabajando.
+                    </p>
+
+                </div>
+
+                <div class="modal-footer justify-content-center">
+
+                    <a href="@Url.Action("Index","Impresoras")"
+                       class="btn btn-primary">
+                        Ir al Index
+                    </a>
+
+                    <button class="btn btn-secondary"
+                            onclick="document.getElementById('mensajeModal').remove()">
+                        Cerrar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    }

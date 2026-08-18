@@ -115,70 +115,70 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (int i = 0; i < 11; i++)
+                                @for (int i = 0; i < Model.Count; i++)
                                 {
-                                    if (i < Model.Count)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <span class="view">@Model[i].LocationExtru</span>
-                                                @Html.TextBoxFor(m => m[i].LocationExtru, new { @class = "form-control edit d-none" })
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Codigo</span>
-                                                @Html.TextBoxFor(m => m[i].Codigo, new { @class = "form-control edit d-none" })
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Tipo</span>
-                                                @Html.TextBoxFor(m => m[i].Tipo, new { @class = "form-control edit d-none" })
-                                            </td>
-                                            <td class="text-center">
-                                                @(Model[i].Additive ? "Yes" : "No")
-                                                @Html.TextBoxFor(m => m[i].Additive, new { @class = "form-control edit d-none" })
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].InkCoreRemainingHours</span>
-                                                @Html.TextBoxFor(m => m[i].InkCoreRemainingHours, new { @class = "form-control edit d-none", type="number" })
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Fecha.ToString("dd/MM/yyyy")</span>
-                                                @Html.TextBoxFor(m => m[i].Fecha,"{0:yyyy-MM-dd}",new{@class = "form-control edit d-none",type = "date"})
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Hora.ToString(@"hh\:mm")</span>
-                                                @Html.TextBoxFor(m => m[i].Hora,"{0:hh\\:mm}",new{@class = "form-control edit d-none",type = "time"})
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Status</span>
-                                                @Html.TextBoxFor(m => m[i].Status, new { @class = "form-control edit d-none" })
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Downtime.ToString("0")</span>
-                                                @Html.TextBoxFor(m => m[i].Downtime,"{0:0}", new {@class = "form-control edit d-none"})
-                                            </td>
-                                            <td>
-                                                <span class="view">@Model[i].Comentario</span>
-                                                @Html.TextBoxFor(m => m[i].Comentario, new { @class = "form-control edit d-none" })
-                                            </td>
-                                            @Html.HiddenFor(m => m[i].Id)
-                                        </tr>
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td><input name="[@i].LocationExtru" class="form-control edit d-none" /></td>
-                                            <td><input name="[@i].Codigo" class="form-control edit d-none" /></td>
-                                            <td><input name="[@i].Tipo" class="form-control edit d-none" /></td>
-                                            <td><input name="[@i].Additiv" class="form-control edit d-none" /></td>
-                                            <td><input name="[@i].InkCoreRemainingHours" class="form-control edit d-none" type="number" /></td>
-                                            <td><input name="[@i].Fecha" class="form-control edit d-none" type="date" /></td>
-                                            <td><input name="[@i].Hora" class="form-control edit d-none" type="time" /></td>
-                                            <td><input name="[@i].Status" class="form-control edit d-none" /></td>
-                                            <td><input name="[@i].Downtime" class="form-control edit d-none" type="number" /></td>
-                                            <td><input name="[@i].Comentario" class="form-control edit d-none" /></td>
-                                            <input type="hidden" name="[@i].Id" value="0" />
-                                        </tr>
-                                    }
+                                if (i < Model.Count)
+                                {
+                                <tr>
+                                    <td>
+                                        <span class="view">@Model[i].LocationExtru</span>
+                                        @Html.TextBoxFor(m => m[i].LocationExtru, new { @class = "form-control edit d-none" })
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Codigo</span>
+                                        @Html.TextBoxFor(m => m[i].Codigo, new { @class = "form-control edit d-none" })
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Tipo</span>
+                                        @Html.TextBoxFor(m => m[i].Tipo, new { @class = "form-control edit d-none" })
+                                    </td>
+                                    <td class="text-center">
+                                        @(Model[i].Additive ? "Yes" : "No")
+                                        @Html.TextBoxFor(m => m[i].Additive, new { @class = "form-control edit d-none" })
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].InkCoreRemainingHours</span>
+                                        @Html.TextBoxFor(m => m[i].InkCoreRemainingHours, new { @class = "form-control edit d-none", type="number" })
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Fecha.ToString("dd/MM/yyyy")</span>
+                                        @Html.TextBoxFor(m => m[i].Fecha,"{0:yyyy-MM-dd}",new{@class = "form-control edit d-none",type = "date"})
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Hora.ToString(@"hh\:mm")</span>
+                                        @Html.TextBoxFor(m => m[i].Hora,"{0:hh\\:mm}",new{@class = "form-control edit d-none",type = "time"})
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Status</span>
+                                        @Html.TextBoxFor(m => m[i].Status, new { @class = "form-control edit d-none" })
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Downtime.ToString("0")</span>
+                                        @Html.TextBoxFor(m => m[i].Downtime,"{0:0}", new {@class = "form-control edit d-none"})
+                                    </td>
+                                    <td>
+                                        <span class="view">@Model[i].Comentario</span>
+                                        @Html.TextBoxFor(m => m[i].Comentario, new { @class = "form-control edit d-none" })
+                                    </td>
+                                    @Html.HiddenFor(m => m[i].Id)
+                                </tr>
+                                }
+                                else
+                                {
+                                <tr>
+                                    <td><input name="[@i].LocationExtru" class="form-control edit d-none" /></td>
+                                    <td><input name="[@i].Codigo" class="form-control edit d-none" /></td>
+                                    <td><input name="[@i].Tipo" class="form-control edit d-none" /></td>
+                                    <td><input name="[@i].Additiv" class="form-control edit d-none" /></td>
+                                    <td><input name="[@i].InkCoreRemainingHours" class="form-control edit d-none" type="number" /></td>
+                                    <td><input name="[@i].Fecha" class="form-control edit d-none" type="date" /></td>
+                                    <td><input name="[@i].Hora" class="form-control edit d-none" type="time" /></td>
+                                    <td><input name="[@i].Status" class="form-control edit d-none" /></td>
+                                    <td><input name="[@i].Downtime" class="form-control edit d-none" type="number" /></td>
+                                    <td><input name="[@i].Comentario" class="form-control edit d-none" /></td>
+                                    <input type="hidden" name="[@i].Id" value="0" />
+                                </tr>
+                                }
                                 }
                             </tbody>
                         </table>

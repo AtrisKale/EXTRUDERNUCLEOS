@@ -27,12 +27,20 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         }
 
+
+
         // GET: Impresoras (solo los más recientes)
         public async Task<IActionResult> Index()
         {
+
+            LimpiarComentariosAntiguos();
+
             // 🔹 recalcular downtime acumulado desde BD
             //GuardarDowntimeAcumulado();
 
+            // ========================================
+            // CARGAR IMPRESORAS
+            // ========================================
             var impresoras = await _context.Impresoras
                 .Select(i => new Impresora
                 {
@@ -48,9 +56,28 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Downtime = i.Downtime > 1440 ? 0 : i.Downtime,
                     Comentario = i.Comentario ?? string.Empty
                 })
-                .OrderBy(i => i.Id)   // ✅ solo por Id
                 .ToListAsync();
 
+            // ========================================
+            // ORDEN VISUAL POR UBICACIÓN
+            // ========================================
+            impresoras = impresoras
+                .OrderBy(i =>
+                    i.LocationExtru == "1" ? 1 :
+                    i.LocationExtru == "2" ? 2 :
+                    i.LocationExtru == "RETRABAJO" ? 3 :
+                    i.LocationExtru == "3" ? 4 :
+                    i.LocationExtru == "4" ? 5 :
+                    i.LocationExtru == "5" ? 6 :
+                    i.LocationExtru == "6" ? 7 :
+                    i.LocationExtru == "TALLER DE IMPRESORAS" ? 8 :
+                    99)
+                .ThenBy(i => i.Id)
+                .ToList();
+
+            // ========================================
+            // DOWNTIME DEL DÍA
+            // ========================================
             var hoy = DateTime.Today;
 
             foreach (var imp in impresoras)
@@ -62,8 +89,9 @@ namespace EXTRUDERNUCLEOS.Controllers
                     .Sum(d => (decimal?)d.Downtime) ?? 0;
             }
 
-
-            // ✅ Avisar si no hay registros
+            // ========================================
+            // VALIDAR SI NO HAY REGISTROS
+            // ========================================
             if (impresoras == null || !impresoras.Any())
             {
                 ViewBag.SinRegistros = true;
@@ -90,30 +118,37 @@ namespace EXTRUDERNUCLEOS.Controllers
                 ViewBag.SinRegistros = false;
             }
 
-            // 🔧 traer historial con Fecha como DateTime
             // ========================================
             // DATOS PARA GRÁFICA DE DOWNTIME
             // ========================================
+            var inicioMes = new DateTime(
+                DateTime.Now.Year,
+                DateTime.Now.Month,
+                1);
 
-            var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            var finMes = inicioMes.AddMonths(1).AddDays(-1);
-
-
+            var finMes = inicioMes
+                .AddMonths(1)
+                .AddDays(-1);
 
             var historial = _context.DowntimeHistorial
-                .Where(d => d.Fecha >= inicioMes && d.Fecha <= finMes)
+                .Where(d =>
+                    d.Fecha >= inicioMes &&
+                    d.Fecha <= finMes)
                 .ToList();
 
-            var datos = Enumerable.Range(0, (finMes - inicioMes).Days + 1)
+            var datos = Enumerable
+                .Range(0, (finMes - inicioMes).Days + 1)
                 .Select(i =>
                 {
                     var fecha = inicioMes.AddDays(i);
 
                     var registro = historial
-                        .FirstOrDefault(x => x.Fecha.Date == fecha.Date);
+                        .FirstOrDefault(x =>
+                            x.Fecha.Date == fecha.Date);
 
                     var detalle = _context.DowntimeDetalle
-                        .Where(det => det.Fecha.Date == fecha.Date)
+                        .Where(det =>
+                            det.Fecha.Date == fecha.Date)
                         .Select(det => new
                         {
                             CodigoImpresora = det.CodigoImpresora,
@@ -131,16 +166,30 @@ namespace EXTRUDERNUCLEOS.Controllers
                 .ToList();
 
             ViewBag.DowntimeData = datos;
-            ViewBag.JsonDowntimeData = JsonConvert.SerializeObject(datos);
 
-            var ultimaExportacion = _context.Configuraciones
-                .FirstOrDefault(c => c.Clave == "UltimaExportacion");
+            ViewBag.JsonDowntimeData =
+                JsonConvert.SerializeObject(datos);
 
-            ViewBag.Mensaje = ultimaExportacion != null;
+            // ========================================
+            // ÚLTIMA EXPORTACIÓN
+            // ========================================
+            var ultimaExportacion =
+                _context.Configuraciones
+                    .FirstOrDefault(c =>
+                        c.Clave == "UltimaExportacion");
+
+            ViewBag.Mensaje =
+                ultimaExportacion != null;
+
             if (ultimaExportacion != null)
-                ViewBag.UltimaExportacion = ultimaExportacion.Valor;
+            {
+                ViewBag.UltimaExportacion =
+                    ultimaExportacion.Valor;
+            }
 
-            // ✅ único return al final
+            // ========================================
+            // RETURN
+            // ========================================
             return View(impresoras);
         }
 
@@ -504,52 +553,121 @@ namespace EXTRUDERNUCLEOS.Controllers
         }
 
 
-
-
-
         public async Task<IActionResult> Status()
         {
-            var impresoras = await _context.Impresoras
-                .OrderBy(i => i.Id)
+            var registros = await _context.Impresoras
+                .Where(x => x.LocationExtru != "TALLER DE IMPRESORAS")
+                .OrderBy(x => x.Id)
                 .ToListAsync();
 
-            // ✅ Pasar la última exportación
-            var ultima = _context.Configuraciones
-                .FirstOrDefault(c => c.Clave == "UltimaExportacion");
-            ViewBag.UltimaExportacion = ultima?.Valor;
+            var modelo = new List<Impresora>();
 
-            if (impresoras == null || !impresoras.Any())
+            // Función para crear un espacio visual vacío.
+            // NO se guarda en la base de datos.
+            Impresora Vacio(string ubicacion)
             {
-                // ⚡ Avisar que no hay registros
-                ViewBag.SinRegistros = true;
-
-                // ⚡ Generar lista vacía con 9 impresoras inicializadas
-                var vacios = Enumerable.Range(0, 9)
-                    .Select(i => new Impresora
-                    {
-                        Codigo = string.Empty,
-                        InkCoreRemainingHours = 0,
-                        Downtime = 0,
-                        Additive = false,
-                        Fecha = DateTime.Now.Date,
-                        Hora = TimeSpan.Zero,
-                        LocationExtru = string.Empty,
-                        Tipo = string.Empty,
-                        Status = string.Empty,
-                        Comentario = string.Empty
-                    })
-                    .ToList();
-
-                return View(vacios);
+                return new Impresora
+                {
+                    Id = 0,
+                    LocationExtru = ubicacion,
+                    Codigo = string.Empty,
+                    Tipo = "VIDEOJET",
+                    Additive = false,
+                    InkCoreRemainingHours = 0,
+                    Downtime = 0,
+                    Fecha = DateTime.Now.Date,
+                    Hora = TimeSpan.Zero,
+                    Status = "PRODUCCION",
+                    Comentario = "SIN COMENTARIOS"
+                };
             }
 
-            // ✅ Si sí hay registros, pasarlos tal cual
+            // =========================
+            // EXTRUDER 1
+            // =========================
+            modelo.Add(
+                registros.FirstOrDefault(x => x.LocationExtru == "1")
+                ?? Vacio("1")
+            );
+
+            // =========================
+            // EXTRUDER 2
+            // =========================
+            modelo.Add(
+                registros.FirstOrDefault(x => x.LocationExtru == "2")
+                ?? Vacio("2")
+            );
+
+            // =========================
+            // RETRABAJO
+            // =========================
+            modelo.Add(
+                registros.FirstOrDefault(x => x.LocationExtru == "RETRABAJO")
+                ?? Vacio("RETRABAJO")
+            );
+
+            // =========================
+            // EXTRUDER 3 - DOS ESPACIOS
+            // =========================
+            var ext3 = registros
+                .Where(x => x.LocationExtru == "3")
+                .OrderBy(x => x.Id)
+                .Take(2)
+                .ToList();
+
+            modelo.Add(ext3.ElementAtOrDefault(0) ?? Vacio("3"));
+            modelo.Add(ext3.ElementAtOrDefault(1) ?? Vacio("3"));
+
+            // =========================
+            // EXTRUDER 4
+            // =========================
+            modelo.Add(
+                registros.FirstOrDefault(x => x.LocationExtru == "4")
+                ?? Vacio("4")
+            );
+
+            // =========================
+            // EXTRUDER 5
+            // =========================
+            modelo.Add(
+                registros.FirstOrDefault(x => x.LocationExtru == "5")
+                ?? Vacio("5")
+            );
+
+            // =========================
+            // EXTRUDER 6 - DOS ESPACIOS
+            // =========================
+            var ext6 = registros
+                .Where(x => x.LocationExtru == "6")
+                .OrderBy(x => x.Id)
+                .Take(2)
+                .ToList();
+
+            modelo.Add(ext6.ElementAtOrDefault(0) ?? Vacio("6"));
+            modelo.Add(ext6.ElementAtOrDefault(1) ?? Vacio("6"));
+
+            var ultima = _context.Configuraciones
+                .FirstOrDefault(c => c.Clave == "UltimaExportacion");
+
+            ViewBag.UltimaExportacion = ultima?.Valor;
             ViewBag.SinRegistros = false;
-            return View(impresoras);
+
+
+
+            // =====================================
+            // IMPRESORAS DISPONIBLES EN TALLER
+            // PARA EL MODAL DE MOVIMIENTO
+            // =====================================
+            var impresorasTaller = await _context.Impresoras
+                .Where(x => x.LocationExtru == "TALLER DE IMPRESORAS")
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+
+            ViewBag.ImpresorasTaller = impresorasTaller;
+            return View(modelo);
         }
 
 
-        //ACTUALIZAR TABLA DE INDEX
 
         [HttpPost]
         public IActionResult ActualizarDesdeIndex(List<Impresora> impresoras)
@@ -576,85 +694,539 @@ namespace EXTRUDERNUCLEOS.Controllers
         }
 
 
-        //ACTUALIZAR DESDE STATUS
 
+
+        //ACTUALIZAR DESDE STATUS
         [HttpPost]
         public IActionResult ActualizarTodo(List<Impresora> impresoras)
         {
-            foreach (var imp in impresoras)
+            // ============================================
+            // GUARDAR LOS IDs QUE FUERON MOVIDOS
+            // DESDE UN ESPACIO VISUAL VACÍO
+            // ============================================
+            var idsMovidos = new HashSet<int>();
+
+
+            // ============================================
+            // PRIMERA PASADA:
+            // PROCESAR ESPACIOS VISUALES VACÍOS (Id = 0)
+            // ============================================
+            foreach (var imp in impresoras.Where(x => x.Id == 0))
             {
-                // 👇 DEBUG
-                Console.WriteLine(
-                    $"ID={imp.Id} CODIGO={imp.Codigo} DOWNTIME RECIBIDO={imp.Downtime}");
-
-                var dbImp = _context.Impresoras.FirstOrDefault(x => x.Id == imp.Id);
-
-                if (dbImp != null)
+                // Si el espacio sigue vacío o tiene 0,
+                // no hacemos nada.
+                if (string.IsNullOrWhiteSpace(imp.Codigo) ||
+                    imp.Codigo == "0")
                 {
-                    Console.WriteLine(
-$"ANTES -> ID={dbImp.Id} DOWNTIME_BD={dbImp.Downtime}");
+                    continue;
+                }
+
+
+                // ============================================
+                // BUSCAR SI ESA IMPRESORA YA EXISTE
+                // ============================================
+                var impresoraExistente = _context.Impresoras
+                    .FirstOrDefault(x => x.Codigo == imp.Codigo);
+
+
+                if (impresoraExistente != null)
+                {
+                    // ============================================
+                    // YA EXISTE:
+                    // SOLO LA ESTAMOS MOVIENDO DE UBICACIÓN
+                    // ============================================
 
                     Console.WriteLine(
-                        $"RECIBIDO -> ID={imp.Id} DOWNTIME_FORM={imp.Downtime}");
-
-                    // Campos editables HIDDEN
-                    dbImp.LocationExtru = imp.LocationExtru;
-                    dbImp.Tipo = imp.Tipo;
-                    dbImp.Status = imp.Status;
-                    dbImp.Comentario = imp.Comentario;
-
-                    // Campos editables desde STATUS
-                    dbImp.Codigo = imp.Codigo;
-                    dbImp.InkCoreRemainingHours = imp.InkCoreRemainingHours;
-                    dbImp.Downtime = imp.Downtime;
-                    Console.WriteLine(
-    $"DESPUES -> ID={dbImp.Id} DOWNTIME_NUEVO={dbImp.Downtime}");
-                    dbImp.Additive = imp.Additive;
+                        $"MOVIENDO IMPRESORA {impresoraExistente.Codigo} " +
+                        $"DE {impresoraExistente.LocationExtru} " +
+                        $"A {imp.LocationExtru}");
 
 
+                    // Guardamos su ID para impedir que
+                    // su posición anterior la vuelva a sobrescribir.
+                    idsMovidos.Add(impresoraExistente.Id);
 
+
+                    impresoraExistente.LocationExtru =
+                        imp.LocationExtru;
+
+                    impresoraExistente.Tipo =
+                        imp.Tipo;
+
+                    impresoraExistente.Status =
+                        string.IsNullOrWhiteSpace(imp.Status)
+                        ? "PRODUCCION"
+                        : imp.Status;
+
+                    impresoraExistente.InkCoreRemainingHours =
+                        imp.InkCoreRemainingHours;
+
+                    impresoraExistente.Additive =
+                        imp.Additive;
+
+                    impresoraExistente.Downtime =
+                        imp.Downtime;
+
+                    impresoraExistente.Comentario =
+                        string.IsNullOrWhiteSpace(imp.Comentario)
+                        ? "SIN COMENTARIOS"
+                        : imp.Comentario;
+
+                    impresoraExistente.Fecha =
+                        DateTime.Now.Date;
+
+                    impresoraExistente.Hora =
+                        DateTime.Now.TimeOfDay;
+
+
+                    // ============================================
+                    // REGISTRAR DOWNTIME SI EXISTE
+                    // ============================================
                     if (imp.Downtime > 0)
                     {
                         RegistrarDowntimeHistorico(imp);
 
-                        Console.WriteLine(
-                            $"CODIGO={imp.Codigo} DOWNTIME HISTORIAL={imp.Downtime}");
-
-                        dbImp.Downtime = 0;
+                        // Ya quedó en historial,
+                        // así que reiniciamos el actual.
+                        impresoraExistente.Downtime = 0;
                     }
-
-                    // Fecha y hora automáticas
-                    dbImp.Fecha = DateTime.Now.Date;
-                    dbImp.Hora = DateTime.Now.TimeOfDay;
                 }
                 else
                 {
-                    _context.Impresoras.Add(new Impresora
+                    // ============================================
+                    // NO EXISTE:
+                    // ES CAPTURA INICIAL DE UNA BD VACÍA
+                    // ============================================
+
+                    var nuevaImpresora = new Impresora
                     {
-                        Codigo = imp.Codigo,
-                        InkCoreRemainingHours = imp.InkCoreRemainingHours,
-                        Downtime = imp.Downtime,
-                        Additive = imp.Additive,
-                        Fecha = DateTime.Now.Date,
-                        Hora = DateTime.Now.TimeOfDay,
-                        Comentario = string.Empty,
-                        Status = string.Empty,
-                        LocationExtru = string.Empty,
-                        Tipo = string.Empty
-                    });
+                        LocationExtru =
+                            imp.LocationExtru ?? string.Empty,
+
+                        Codigo =
+                            imp.Codigo ?? string.Empty,
+
+                        Tipo =
+                            imp.Tipo ?? string.Empty,
+
+                        Additive =
+                            imp.Additive,
+
+                        InkCoreRemainingHours =
+                            imp.InkCoreRemainingHours,
+
+                        Fecha =
+                            DateTime.Now.Date,
+
+                        Hora =
+                            DateTime.Now.TimeOfDay,
+
+                        Status =
+                            string.IsNullOrWhiteSpace(imp.Status)
+                            ? "PRODUCCION"
+                            : imp.Status,
+
+                        // Si hay downtime lo registramos en historial,
+                        // pero no lo dejamos acumulado en la fila.
+                        Downtime = 0,
+
+                        Comentario =
+                            string.IsNullOrWhiteSpace(imp.Comentario)
+                            ? "SIN COMENTARIOS"
+                            : imp.Comentario
+                    };
+
+
+                    _context.Impresoras.Add(nuevaImpresora);
+
+
+                    Console.WriteLine(
+                        $"CREANDO REGISTRO INICIAL -> " +
+                        $"CODIGO={imp.Codigo} " +
+                        $"UBICACION={imp.LocationExtru}");
+
+
+                    // ============================================
+                    // DOWNTIME DURANTE CAPTURA INICIAL
+                    // ============================================
+                    if (imp.Downtime > 0)
+                    {
+                        RegistrarDowntimeHistorico(imp);
+                    }
+                }
+            }
+
+
+
+            // ============================================
+            // SEGUNDA PASADA:
+            // ACTUALIZAR REGISTROS QUE YA TIENEN ID
+            // ============================================
+            foreach (var imp in impresoras.Where(x => x.Id > 0))
+            {
+                var dbImp = _context.Impresoras
+                    .FirstOrDefault(x => x.Id == imp.Id);
+
+
+                if (dbImp == null)
+                {
+                    continue;
+                }
+
+
+                // ========================================
+                // SI ESTA IMPRESORA FUE MOVIDA ARRIBA,
+                // NO PERMITIR QUE SU POSICIÓN ANTERIOR
+                // LA REGRESE
+                // ========================================
+                if (idsMovidos.Contains(dbImp.Id))
+                {
+                    Console.WriteLine(
+                        $"ID {dbImp.Id} YA FUE MOVIDO. " +
+                        $"SE IGNORA POSICIÓN ANTERIOR.");
+
+                    continue;
+                }
+
+
+                // ========================================
+                // PROTEGER IMPRESORAS DEL TALLER
+                // ========================================
+                if (dbImp.LocationExtru ==
+                    "TALLER DE IMPRESORAS")
+                {
+                    continue;
+                }
+
+
+                Console.WriteLine(
+                    $"ACTUALIZANDO ID={dbImp.Id} " +
+                    $"CODIGO={imp.Codigo}");
+
+
+                // ========================================
+                // ACTUALIZACIÓN NORMAL
+                // ========================================
+                dbImp.LocationExtru =
+                    imp.LocationExtru;
+
+                dbImp.Tipo =
+                    imp.Tipo;
+
+                dbImp.Status =
+                    imp.Status;
+
+                dbImp.Comentario =
+                    string.IsNullOrWhiteSpace(imp.Comentario)
+                    ? "SIN COMENTARIOS"
+                    : imp.Comentario;
+
+
+                // Si ponen 0, considerarlo espacio vacío
+                dbImp.Codigo =
+                    imp.Codigo == "0"
+                    ? string.Empty
+                    : imp.Codigo;
+
+
+                dbImp.InkCoreRemainingHours =
+                    imp.InkCoreRemainingHours;
+
+                dbImp.Downtime =
+                    imp.Downtime;
+
+                dbImp.Additive =
+                    imp.Additive;
+
+
+                // ========================================
+                // REGISTRAR DOWNTIME
+                // ========================================
+                if (imp.Downtime > 0)
+                {
+                    RegistrarDowntimeHistorico(imp);
+
+                    dbImp.Downtime = 0;
+                }
+
+
+                dbImp.Fecha =
+                    DateTime.Now.Date;
+
+                dbImp.Hora =
+                    DateTime.Now.TimeOfDay;
+            }
+
+
+
+            // ============================================
+            // GUARDAR TODO
+            // ============================================
+            _context.SaveChanges();
+
+
+            // Mostrar modal después de guardar
+            TempData["DatosActualizados"] = true;
+
+
+            return RedirectToAction(nameof(Status));
+        }
+
+
+
+        private void LimpiarComentariosAntiguos()
+        {
+            var impresoras = _context.Impresoras
+                .Where(x =>
+                    x.Comentario != null &&
+                    x.Comentario != "" &&
+                    x.Comentario != "SIN COMENTARIOS")
+                .ToList();
+
+            foreach (var imp in impresoras)
+            {
+                var comentario = imp.Comentario;
+
+                if (comentario.StartsWith("[") &&
+                    comentario.Length >= 12)
+                {
+                    var textoFecha = comentario.Substring(1, 10);
+
+                    if (DateTime.TryParseExact(
+                        textoFecha,
+                        "dd/MM/yyyy",
+                        null,
+                        System.Globalization.DateTimeStyles.None,
+                        out DateTime fechaComentario))
+                    {
+                        if (fechaComentario.Date <= DateTime.Today.AddDays(-7))
+                        {
+                            imp.Comentario = "SIN COMENTARIOS";
+                        }
+                    }
                 }
             }
 
             _context.SaveChanges();
-
-            ViewBag.Mensaje = true;
-            return View("Status", _context.Impresoras.OrderBy(i => i.Id).ToList());
         }
 
 
 
         [HttpPost]
-        public IActionResult GuardarTaller([Bind(Prefix = "impresoras")] List<Impresora> impresoras)
+        public IActionResult MoverImpresora(
+    int idDanada,
+    int idReemplazo,
+    decimal downtime,
+    string motivoCambio)
+        {
+            var danada = _context.Impresoras
+                .FirstOrDefault(x => x.Id == idDanada);
+
+            var reemplazo = _context.Impresoras
+                .FirstOrDefault(x => x.Id == idReemplazo);
+
+            if (danada == null || reemplazo == null)
+            {
+                TempData["ErrorMovimiento"] =
+                    "No se pudo encontrar una de las impresoras.";
+
+                return RedirectToAction(nameof(Status));
+            }
+
+            if (danada.Id == reemplazo.Id)
+            {
+                TempData["ErrorMovimiento"] =
+                    "La impresora de reemplazo debe ser diferente.";
+
+                return RedirectToAction(nameof(Status));
+            }
+
+
+            // =========================================
+            // GUARDAR UBICACIÓN ORIGINAL
+            // =========================================
+            var ubicacionDestino = danada.LocationExtru;
+
+
+            // =========================================
+            // REGISTRAR DOWNTIME
+            // =========================================
+            if (downtime > 0)
+            {
+                danada.Downtime = downtime;
+
+                RegistrarDowntimeHistorico(danada);
+
+                // Ya quedó registrado en historial
+                danada.Downtime = 0;
+            }
+
+
+            // =========================================
+            // GUARDAR MOTIVO DEL CAMBIO
+            // =========================================
+            if (!string.IsNullOrWhiteSpace(motivoCambio))
+            {
+                danada.Comentario =
+                      $"SE RETIRO DE {ubicacionDestino}: {motivoCambio.Trim()} - [{DateTime.Now:dd/MM/yyyy}]";
+            }
+            else
+            {
+                danada.Comentario = "SIN COMENTARIOS";
+            }
+
+            // =========================================
+            // MANDAR LA DAÑADA AL TALLER
+            // =========================================
+            danada.LocationExtru = "TALLER DE IMPRESORAS";
+            danada.Status = "MAINTENANCE";
+            danada.Fecha = DateTime.Now.Date;
+            danada.Hora = DateTime.Now.TimeOfDay;
+
+
+            // =========================================
+            // MOVER REEMPLAZO AL LUGAR DE LA DAÑADA
+            // =========================================
+            reemplazo.LocationExtru = ubicacionDestino;
+            reemplazo.Status = "PRODUCCION";
+            reemplazo.Fecha = DateTime.Now.Date;
+            reemplazo.Hora = DateTime.Now.TimeOfDay;
+
+
+            // =========================================
+            // GUARDAR TODO
+            // =========================================
+            _context.SaveChanges();
+
+            TempData["MovimientoRealizado"] = true;
+
+            return RedirectToAction(nameof(Status));
+        }
+
+
+
+
+
+
+        [HttpPost]
+        public IActionResult AgregarAlTaller(int id)
+        {
+            var impresora = _context.Impresoras
+                .FirstOrDefault(x => x.Id == id);
+
+            if (impresora == null)
+            {
+                return RedirectToAction("Taller", "Mtto");
+            }
+
+            // Solo actualizamos el registro existente
+            impresora.LocationExtru = "TALLER DE IMPRESORAS";
+            impresora.Status = "MAINTENANCE";
+            impresora.Fecha = DateTime.Now.Date;
+            impresora.Hora = DateTime.Now.TimeOfDay;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Taller", "Mtto");
+        }
+
+
+
+
+        [HttpPost]
+        public IActionResult RetirarDelTaller(
+            int id,
+            string nuevaUbicacion,
+            int? idDesplazada,
+            string? ubicacionDesplazada)
+        {
+            var impresora = _context.Impresoras
+                .FirstOrDefault(x => x.Id == id);
+
+            if (impresora == null)
+                return RedirectToAction("Taller", "Mtto");
+
+            if (impresora.LocationExtru != "TALLER DE IMPRESORAS")
+                return RedirectToAction("Taller", "Mtto");
+
+
+            // ==========================================
+            // BUSCAR IMPRESORAS QUE YA ESTÁN EN DESTINO
+            // ==========================================
+            var ocupantes = _context.Impresoras
+                .Where(x =>
+                    x.LocationExtru == nuevaUbicacion &&
+                    x.Id != impresora.Id)
+                .OrderBy(x => x.Id)
+                .ToList();
+
+
+            // Ext #3 y Ext #6 tienen capacidad para 2
+            int capacidad =
+                nuevaUbicacion == "3" ||
+                nuevaUbicacion == "6"
+                    ? 2
+                    : 1;
+
+
+            // ==========================================
+            // SI EL DESTINO ESTÁ LLENO
+            // ==========================================
+            if (ocupantes.Count >= capacidad)
+            {
+                // Todavía no sabemos qué hacer con
+                // la impresora que está ocupando el lugar.
+                if (!idDesplazada.HasValue ||
+                    string.IsNullOrWhiteSpace(ubicacionDesplazada))
+                {
+                    TempData["RetiroPendienteId"] = id;
+                    TempData["RetiroDestino"] = nuevaUbicacion;
+
+                    return RedirectToAction("Taller", "Mtto");
+                }
+
+
+                // Buscar exactamente la impresora
+                // que el usuario decidió mover.
+                var desplazada = _context.Impresoras
+                    .FirstOrDefault(x => x.Id == idDesplazada.Value);
+
+                if (desplazada == null)
+                    return RedirectToAction("Taller", "Mtto");
+
+
+                // Mover la que actualmente ocupa el lugar
+                desplazada.LocationExtru = ubicacionDesplazada;
+                desplazada.Status = "PRODUCCION";
+                desplazada.Fecha = DateTime.Now.Date;
+                desplazada.Hora = DateTime.Now.TimeOfDay;
+            }
+
+
+            // ==========================================
+            // REGRESAR LA REPARADA A PRODUCCIÓN
+            // ==========================================
+            impresora.LocationExtru = nuevaUbicacion;
+            impresora.Status = "PRODUCCION";
+            impresora.Fecha = DateTime.Now.Date;
+            impresora.Hora = DateTime.Now.TimeOfDay;
+
+            // Limpiar comentario de la falla anterior
+            impresora.Comentario = "SIN COMENTARIOS";
+
+            _context.SaveChanges();
+
+            TempData["RetiroRealizado"] = true;
+
+            return RedirectToAction("Taller", "Mtto");
+        }
+
+
+
+
+        [HttpPost]
+        public IActionResult GuardarTaller(
+        [Bind(Prefix = "impresoras")] List<Impresora> impresoras)
         {
             Console.WriteLine("===== ENTRO A GUARDAR TALLER =====");
 
@@ -668,11 +1240,16 @@ $"ANTES -> ID={dbImp.Id} DOWNTIME_BD={dbImp.Downtime}");
                 Console.WriteLine(
                     $"ID={imp.Id} CODIGO={imp.Codigo} DOWNTIME={imp.Downtime}");
 
-                var dbImp = _context.Impresoras.FirstOrDefault(x => x.Id == imp.Id);
+                var dbImp = _context.Impresoras
+                    .FirstOrDefault(x => x.Id == imp.Id);
 
                 if (dbImp != null)
                 {
-                    dbImp.Codigo = imp.Codigo;
+                    // Si ponen 0, considerarlo como espacio sin impresora
+                    dbImp.Codigo = imp.Codigo == "0"
+                        ? string.Empty
+                        : imp.Codigo;
+
                     dbImp.InkCoreRemainingHours = imp.InkCoreRemainingHours;
                     dbImp.Downtime = imp.Downtime;
                     dbImp.Comentario = imp.Comentario;
@@ -686,7 +1263,6 @@ $"ANTES -> ID={dbImp.Id} DOWNTIME_BD={dbImp.Downtime}");
 
                         RegistrarDowntimeHistorico(imp);
 
-                        // Reiniciar después de registrar
                         dbImp.Downtime = 0;
                     }
                 }
@@ -702,6 +1278,7 @@ $"ANTES -> ID={dbImp.Id} DOWNTIME_BD={dbImp.Downtime}");
 
             return View("~/Views/Mtto/Taller.cshtml", modelo);
         }
+
 
 
 

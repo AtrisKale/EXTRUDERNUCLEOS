@@ -35,6 +35,8 @@ namespace EXTRUDERNUCLEOS.Controllers
 
             LimpiarComentariosAntiguos();
 
+            var ahora = ObtenerHoraMonterrey();
+
             // 🔹 recalcular downtime acumulado desde BD
             //GuardarDowntimeAcumulado();
 
@@ -50,7 +52,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Tipo = i.Tipo ?? string.Empty,
                     Additive = i.Additive,
                     InkCoreRemainingHours = i.InkCoreRemainingHours,
-                    Fecha = i.Fecha == default ? DateTime.Now : i.Fecha,
+                    Fecha = i.Fecha == default ? ahora : i.Fecha,
                     Hora = i.Hora == default ? TimeSpan.Zero : i.Hora,
                     Status = i.Status ?? string.Empty,
                     Downtime = i.Downtime > 1440 ? 0 : i.Downtime,
@@ -104,7 +106,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                         InkCoreRemainingHours = 0,
                         Downtime = 0,
                         Additive = false,
-                        Fecha = DateTime.Now.Date,
+                        Fecha = ahora.Date,
                         Hora = TimeSpan.Zero,
                         LocationExtru = string.Empty,
                         Tipo = string.Empty,
@@ -122,8 +124,8 @@ namespace EXTRUDERNUCLEOS.Controllers
             // DATOS PARA GRÁFICA DE DOWNTIME
             // ========================================
             var inicioMes = new DateTime(
-                DateTime.Now.Year,
-                DateTime.Now.Month,
+                ahora.Year,
+                ahora.Month,
                 1);
 
             var finMes = inicioMes
@@ -197,7 +199,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         private DateTime ObtenerFechaOperativa()
         {
-            var ahora = DateTime.Now;
+           var ahora = ObtenerHoraMonterrey();
 
             // El día operativo comienza a las 7:00 AM
             if (ahora.TimeOfDay < TimeSpan.FromHours(7))
@@ -340,7 +342,8 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult GraficaDowntime()
         {
-            var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var ahora = ObtenerHoraMonterrey();
+            var inicioMes = new DateTime(ahora.Year, ahora.Month, 1);
             var finMes = inicioMes.AddMonths(1).AddDays(-1);
 
             var datos = _context.DowntimeHistorial
@@ -368,7 +371,8 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public void GuardarDowntimeAcumulado()
         {
-            var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var ahora = ObtenerHoraMonterrey();
+            var inicioMes = new DateTime(ahora.Year, ahora.Month, 1);
             var finMes = inicioMes.AddMonths(1).AddDays(-1);
 
 
@@ -442,6 +446,7 @@ namespace EXTRUDERNUCLEOS.Controllers
         // GET: Historial (todos los registros)
         public async Task<IActionResult> Historial()
         {
+            var ahora = ObtenerHoraMonterrey();
             var impresoras = await _context.Impresoras
                 .OrderBy(i => i.Id)
                 .ThenBy(i => i.Codigo ?? string.Empty)
@@ -453,7 +458,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Tipo = i.Tipo ?? string.Empty,
                     Additive = i.Additive,
                     InkCoreRemainingHours = i.InkCoreRemainingHours,
-                    Fecha = i.Fecha == default ? DateTime.Now : i.Fecha,
+                    Fecha = i.Fecha == default ? ahora : i.Fecha,
                     Hora = i.Hora == default ? TimeSpan.Zero : i.Hora,
                     Status = i.Status ?? string.Empty,
 
@@ -583,6 +588,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public async Task<IActionResult> Status()
         {
+            var ahora = ObtenerHoraMonterrey();
             var registros = await _context.Impresoras
                 .Where(x => x.LocationExtru != "TALLER DE IMPRESORAS")
                 .OrderBy(x => x.Id)
@@ -603,7 +609,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Additive = false,
                     InkCoreRemainingHours = 0,
                     Downtime = 0,
-                    Fecha = DateTime.Now.Date,
+                    Fecha = ahora.Date,
                     Hora = TimeSpan.Zero,
                     Status = "PRODUCCION",
                     Comentario = "SIN COMENTARIOS"
@@ -728,6 +734,9 @@ namespace EXTRUDERNUCLEOS.Controllers
         [HttpPost]
         public IActionResult ActualizarTodo(List<Impresora> impresoras)
         {
+            var ahora = ObtenerHoraMonterrey();
+
+
             // ============================================
             // GUARDAR LOS IDs QUE FUERON MOVIDOS
             // DESDE UN ESPACIO VISUAL VACÍO
@@ -801,10 +810,10 @@ namespace EXTRUDERNUCLEOS.Controllers
                         : imp.Comentario;
 
                     impresoraExistente.Fecha =
-                        DateTime.Now.Date;
+                        ahora.Date;
 
                     impresoraExistente.Hora =
-                        DateTime.Now.TimeOfDay;
+                        ahora.TimeOfDay;
 
 
                     // ============================================
@@ -844,10 +853,10 @@ namespace EXTRUDERNUCLEOS.Controllers
                             imp.InkCoreRemainingHours,
 
                         Fecha =
-                            DateTime.Now.Date,
+                            ahora.Date,
 
                         Hora =
-                            DateTime.Now.TimeOfDay,
+                            ahora.TimeOfDay,
 
                         Status =
                             string.IsNullOrWhiteSpace(imp.Status)
@@ -979,10 +988,10 @@ namespace EXTRUDERNUCLEOS.Controllers
 
 
                 dbImp.Fecha =
-                    DateTime.Now.Date;
+                    ahora.Date;
 
                 dbImp.Hora =
-                    DateTime.Now.TimeOfDay;
+                   ahora.TimeOfDay;
             }
 
 
@@ -1001,9 +1010,21 @@ namespace EXTRUDERNUCLEOS.Controllers
         }
 
 
+        private DateTime ObtenerHoraMonterrey()
+        {
+            string zona = OperatingSystem.IsWindows()? "Central Standard Time(Mexico)" : "America/Monterrey";
+
+            var zonaMonterrey = TimeZoneInfo.FindSystemTimeZoneById(zona);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaMonterrey);
+        }
+
+
 
         private void LimpiarComentariosAntiguos()
         {
+            var ahora = ObtenerHoraMonterrey();
+
             var impresoras = _context.Impresoras
                 .Where(x =>
                     x.Comentario != null &&
@@ -1027,7 +1048,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                         System.Globalization.DateTimeStyles.None,
                         out DateTime fechaComentario))
                     {
-                        if (fechaComentario.Date <= DateTime.Today.AddDays(-7))
+                        if (fechaComentario.Date <= ahora.Date.AddDays(-7))
                         {
                             imp.Comentario = "SIN COMENTARIOS";
                         }
@@ -1047,6 +1068,8 @@ namespace EXTRUDERNUCLEOS.Controllers
     decimal downtime,
     string motivoCambio)
         {
+            var ahora = ObtenerHoraMonterrey();
+
             var danada = _context.Impresoras
                 .FirstOrDefault(x => x.Id == idDanada);
 
@@ -1096,7 +1119,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             if (!string.IsNullOrWhiteSpace(motivoCambio))
             {
                 danada.Comentario =
-                      $"SE RETIRO DE {ubicacionDestino}: {motivoCambio.Trim()} - [{DateTime.Now:dd/MM/yyyy}]";
+                      $"SE RETIRO DE {ubicacionDestino}: {motivoCambio.Trim()} - [{ahora:dd/MM/yyyy}]";
             }
             else
             {
@@ -1108,8 +1131,8 @@ namespace EXTRUDERNUCLEOS.Controllers
             // =========================================
             danada.LocationExtru = "TALLER DE IMPRESORAS";
             danada.Status = "MAINTENANCE";
-            danada.Fecha = DateTime.Now.Date;
-            danada.Hora = DateTime.Now.TimeOfDay;
+            danada.Fecha = ahora.Date;
+            danada.Hora = ahora.TimeOfDay;
 
 
             // =========================================
@@ -1117,8 +1140,8 @@ namespace EXTRUDERNUCLEOS.Controllers
             // =========================================
             reemplazo.LocationExtru = ubicacionDestino;
             reemplazo.Status = "PRODUCCION";
-            reemplazo.Fecha = DateTime.Now.Date;
-            reemplazo.Hora = DateTime.Now.TimeOfDay;
+            reemplazo.Fecha = ahora.Date;
+            reemplazo.Hora = ahora.TimeOfDay;
 
 
             // =========================================
@@ -1139,6 +1162,8 @@ namespace EXTRUDERNUCLEOS.Controllers
         [HttpPost]
         public IActionResult AgregarAlTaller(int id)
         {
+            var ahora = ObtenerHoraMonterrey();
+
             var impresora = _context.Impresoras
                 .FirstOrDefault(x => x.Id == id);
 
@@ -1150,8 +1175,8 @@ namespace EXTRUDERNUCLEOS.Controllers
             // Solo actualizamos el registro existente
             impresora.LocationExtru = "TALLER DE IMPRESORAS";
             impresora.Status = "MAINTENANCE";
-            impresora.Fecha = DateTime.Now.Date;
-            impresora.Hora = DateTime.Now.TimeOfDay;
+            impresora.Fecha = ahora.Date;
+            impresora.Hora = ahora.TimeOfDay;
 
             _context.SaveChanges();
 
@@ -1168,6 +1193,8 @@ namespace EXTRUDERNUCLEOS.Controllers
             int? idDesplazada,
             string? ubicacionDesplazada)
         {
+            var ahora = ObtenerHoraMonterrey();
+
             var impresora = _context.Impresoras
                 .FirstOrDefault(x => x.Id == id);
 
@@ -1226,8 +1253,8 @@ namespace EXTRUDERNUCLEOS.Controllers
                 // Mover la que actualmente ocupa el lugar
                 desplazada.LocationExtru = ubicacionDesplazada;
                 desplazada.Status = "PRODUCCION";
-                desplazada.Fecha = DateTime.Now.Date;
-                desplazada.Hora = DateTime.Now.TimeOfDay;
+                desplazada.Fecha = ahora.Date;
+                desplazada.Hora = ahora.TimeOfDay;
             }
 
 
@@ -1236,8 +1263,8 @@ namespace EXTRUDERNUCLEOS.Controllers
             // ==========================================
             impresora.LocationExtru = nuevaUbicacion;
             impresora.Status = "PRODUCCION";
-            impresora.Fecha = DateTime.Now.Date;
-            impresora.Hora = DateTime.Now.TimeOfDay;
+            impresora.Fecha = ahora.Date;
+            impresora.Hora = ahora.TimeOfDay;
 
             // Limpiar comentario de la falla anterior
             impresora.Comentario = "SIN COMENTARIOS";
@@ -1262,7 +1289,9 @@ namespace EXTRUDERNUCLEOS.Controllers
             {
                 Console.WriteLine("MODELSTATE INVALIDO");
             }
-
+            
+            var ahora = ObtenerHoraMonterrey();
+            
             foreach (var imp in impresoras)
             {
                 Console.WriteLine(
@@ -1281,8 +1310,8 @@ namespace EXTRUDERNUCLEOS.Controllers
                     dbImp.InkCoreRemainingHours = imp.InkCoreRemainingHours;
                     dbImp.Downtime = imp.Downtime;
                     dbImp.Comentario = imp.Comentario;
-                    dbImp.Fecha = DateTime.Now.Date;
-                    dbImp.Hora = DateTime.Now.TimeOfDay;
+                    dbImp.Fecha = ahora.Date;
+                    dbImp.Hora = ahora.TimeOfDay;
 
                     if (imp.Downtime > 0)
                     {

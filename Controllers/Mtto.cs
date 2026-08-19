@@ -10,6 +10,7 @@ namespace EXTRUDERNUCLEOS.Controllers
     public class MttoController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private static string _filebrowserToken = string.Empty;
 
         public MttoController(ApplicationDbContext context)
         {
@@ -49,7 +50,11 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         [HttpPost]
         public IActionResult GuardarBitacora(Bitacora nuevo, List<Bitacora> bitacora)
+
+
         {
+            var ahora = ObtenerHoraMonterrey();
+
             // ==========================
             // NUEVO REGISTRO
             // ==========================
@@ -63,7 +68,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                ))
             {
                 nuevo.Fecha = nuevo.Fecha == DateTime.MinValue
-                    ? DateTime.Now
+                    ? ahora
                     : nuevo.Fecha;
 
                 _context.Bitacoras.Add(nuevo);
@@ -145,7 +150,9 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult HistorialBitacora(int? filtroId = null)
         {
-            var hoy = DateTime.Now;
+
+        
+            var hoy =ObtenerHoraMonterrey();
 
             var registros = _context.Bitacoras
                 .Where(x => x.Fecha.Month == hoy.Month &&
@@ -174,7 +181,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult HistorialMes()
         {
-            var hoy = DateTime.Now;
+            var hoy = ObtenerHoraMonterrey();
 
             var registros = _context.Impresoras
                 .Where(x => x.Fecha.Month == hoy.Month
@@ -218,7 +225,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                 !FiltrarVideojet &&
                 !FiltrarFechas)
             {
-                var hoy = DateTime.Now;
+                var hoy = ObtenerHoraMonterrey();
 
                 consulta = consulta.Where(x =>
                     x.Fecha.Month == hoy.Month &&
@@ -434,7 +441,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                     return File(
                         stream.ToArray(),
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        $"Bitacora_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+                        $"Bitacora_{ObtenerHoraMonterrey:yyyyMMdd_HHmmss}.xlsx");
                 }
             }
         }
@@ -443,6 +450,8 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult Taller()
         {
+            var ahora = ObtenerHoraMonterrey();
+            
             var impresoras = _context.Impresoras.ToList();
 
             // Si no existe Videojet en Taller, crear uno
@@ -457,8 +466,8 @@ namespace EXTRUDERNUCLEOS.Controllers
                     InkCoreRemainingHours = 0,
                     Downtime = 0,
                     Comentario = string.Empty,
-                    Fecha = DateTime.Now.Date,
-                    Hora = DateTime.Now.TimeOfDay
+                    Fecha = ahora.Date,
+                    Hora = ahora.TimeOfDay
                 });
                 _context.SaveChanges();
             }
@@ -492,15 +501,69 @@ namespace EXTRUDERNUCLEOS.Controllers
             return View(modelo);
         }
 
-
-
-
+        private DateTime ObtenerHoraMonterrey()
+        {
+            string zona = OperatingSystem.IsWindows() ? "Central Standard Time (Mexico)" : "America/Monterrey";
+            var zonaMonterrey =TimeZoneInfo.FindSystemTimeZoneById(zona);
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaMonterrey);
+        }
 
         public IActionResult Videos()
         {
+
             return View();
         }
 
+        // GET: /Mtto/ObtenerVideoMantenimiento
+        [HttpGet("Mtto/ObtenerVideoMantenimiento")]
+        public async Task<IActionResult> ObtenerVideoMantenimiento()
+        {
+            string urlBase = "http://10.195.250.100:7000";
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(30);
+
+                    // 🔐 PASO 1: Login automático de administración de Filebrowser
+                    if (string.IsNullOrEmpty(_filebrowserToken))
+                    {
+                        var loginData = new { username = "admin", password = "admin" };
+                        var jsonPayload = new StringContent(System.Text.Json.JsonSerializer.Serialize(loginData), System.Text.Encoding.UTF8, "application/json");
+
+                        var loginResponse = await client.PostAsync($"{urlBase}/api/login", jsonPayload);
+                        if (loginResponse.IsSuccessStatusCode)
+                        {
+                            _filebrowserToken = await loginResponse.Content.ReadAsStringAsync();
+                            _filebrowserToken = _filebrowserToken.Trim('"');
+                        }
+                    }
+
+                    // 📹 PASO 2: Intento de descarga desde Filebrowser
+                    if (!string.IsNullOrEmpty(_filebrowserToken))
+                    {
+                        client.DefaultRequestHeaders.Add("X-Auth", _filebrowserToken);
+
+                        string urlArchivo = $"{urlBase}/api/raw/RecursosMtto/v88_final.mp4";
+
+                        var response = await client.GetAsync(urlArchivo, HttpCompletionOption.ResponseHeadersRead);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var stream = await response.Content.ReadAsStreamAsync();
+                            return File(stream, "video/mp4", enableRangeProcessing: true);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Loguear error si es necesario
+            }
+
+            return NotFound("El video v88_final.mp4 no se encuentra disponible en Filebrowser.");
+        }
 
     }
 }

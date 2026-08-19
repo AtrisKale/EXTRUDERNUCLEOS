@@ -7,7 +7,7 @@ namespace EXTRUDERNUCLEOS.Models
     public class Bitacora
     {
         [Key]
-        public int BitacoraId { get; set; }
+        public int Id { get; set; }
         public int? IdVideojet { get; set; }   // antes era int
         public string? MotivoMtto { get; set; }
         public string? Procedimiento { get; set; }
@@ -24,9 +24,7 @@ namespace EXTRUDERNUCLEOS.Models
 
         // 🔧 Campos adicionales para sincronizar con Impresoras
         [NotMapped]
-        public string
-            Codigo
-        { get; set; }
+        public string Codigo { get; set; }
 
         [NotMapped]
         public int InkCoreRemainingHours { get; set; }

@@ -117,7 +117,7 @@
 
                             <input type="hidden"
                                    name="bitacora[@i].BitacoraId"
-                                   value="@item.BitacoraId" />
+                                   value="@item.Id" />
 
                             <td>
                                 <input name="bitacora[@i].IdVideojet"
@@ -141,7 +141,7 @@
                             </td>
 
                             <td>
-                                @if (item.BitacoraId > 0)
+                                @if (item.Id > 0)
                                 {
                                     <input value="@item.Fecha.ToString(" dd /MM/yyyy")"
                                            class="form-control"

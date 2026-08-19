@@ -32,7 +32,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             }
 
             var lista = registros
-            .OrderByDescending(r => r.BitacoraId)
+            .OrderByDescending(r => r.Id)
             .Take(8)
             .ToList();
 
@@ -76,11 +76,11 @@ namespace EXTRUDERNUCLEOS.Controllers
             {
                 foreach (var item in bitacora)
                 {
-                    if (item.BitacoraId <= 0)
+                    if (item.Id <= 0)
                         continue;
 
                     var registro = _context.Bitacoras
-                        .FirstOrDefault(x => x.BitacoraId == item.BitacoraId);
+                        .FirstOrDefault(x => x.Id == item.Id);
 
                     if (registro == null)
                         continue;
@@ -131,7 +131,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             ViewBag.Mensaje = true;
 
             var lista = _context.Bitacoras
-            .OrderByDescending(x => x.BitacoraId)
+            .OrderByDescending(x => x.Id)
             .Take(8)
             .ToList();
 
@@ -157,7 +157,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             }
 
             var lista = registros
-                .OrderByDescending(x => x.BitacoraId)
+                .OrderByDescending(x => x.Id)
                 .ToList();
 
             ViewBag.FiltroId = filtroId;

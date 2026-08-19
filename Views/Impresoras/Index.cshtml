@@ -1,66 +1,67 @@
 ﻿@model List<EXTRUDERNUCLEOS.Models.Impresora>
-@using Microsoft.AspNetCore.Mvc.Localization
-@using Microsoft.AspNetCore.Mvc.ViewFeatures
-@inject IViewLocalizer Localizer
+    @using Microsoft.AspNetCore.Mvc.Localization
+    @using Microsoft.AspNetCore.Mvc.ViewFeatures
+    @inject IViewLocalizer Localizer
 
-@{
+    @{
     ViewData["Title"] = "Gestión de Impresoras";
     Layout = "_Layout2";
+    }
+   
 
-}
-
-
-<h1>@ViewData["Title"]</h1>
-@if (ViewBag.SinRegistros == true)
-{
+    <h1>@ViewData["Title"]</h1>
+    @if (ViewBag.SinRegistros == true)
+    {
     <div class="alert alert-warning text-center mb-3">
         ⚠️ No existen registros en la base de datos. Captura la información inicial desde STATUS.
     </div>
-}
+    }
 
 
 
-<div class="row">
-    <!-- Gráfica a la izquierda -->
-    <div class="col-md-7">
-        <div class="card shadow-sm mb-3 card-downtime">
-            <div class="card-header bg-primary text-white text-center">
-                <h6>Downtime del Mes</h6>
-            </div>
-            <div class="card-body p-1">
-                <div style="height:200px;">
-                    <canvas id="downtimeChart"></canvas>
+
+
+    <div class="row">
+        <!-- Gráfica a la izquierda -->
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-3 card-downtime">
+                <div class="card-header bg-primary text-white text-center">
+                    <h6>Downtime del Mes</h6>
+                </div>
+                <div class="card-body p-1">
+                    <div style="height:200px;">
+                        <canvas id="downtimeChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
 
 
 
-    <!-- Card de horas núcleo a la derecha, ocupando mitad del ancho -->
-    <div class="col-md-5">
-        <div class="card shadow-sm mb-3" style="height: 220px;">
-            <div class="card-header bg-primary text-white text-center p-2"
-                 style="position: sticky; top: 0; z-index: 10;">
-                Horas núcleo restantes
-            </div>
-            <div class="card-body p-2" style="overflow-y:auto; height: calc(220px - 40px);">
+        <!-- Card de horas núcleo a la derecha, ocupando mitad del ancho -->
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-3" style="height: 220px;">
+                <div class="card-header bg-primary text-white text-center p-2"
+                     style="position: sticky; top: 0; z-index: 10;">
+                    Horas núcleo restantes
+                </div>
                 <div class="card-body p-2" style="overflow-y:auto; height: calc(220px - 40px);">
-                    @foreach (var imp in Model.Where(x => x.Codigo != "3" && x.Codigo != "6"))
-                    {
+                    <div class="card-body p-2" style="overflow-y:auto; height: calc(220px - 40px);">
+                        @foreach (var imp in Model.Where(x => x.Codigo != "3" && x.Codigo != "6"))
+                        {
                         <small><strong>@imp.Codigo</strong></small>
 
                         @* Definimos el color según condición *@
                         var barraColor = "bg-info"; // azul por defecto
                         if (imp.InkCoreRemainingHours < 500 && imp.InkCoreRemainingHours >= 300)
                         {
-                            barraColor = "bg-warning"; // naranja
+                        barraColor = "bg-warning"; // naranja
                         }
                         else if (imp.InkCoreRemainingHours < 300)
                         {
-                            barraColor = "bg-danger"; // rojo
+                        barraColor = "bg-danger"; // rojo
                         }
 
                         <div class="progress mb-2" style="height: 14px;">
@@ -71,13 +72,13 @@
                                 <small>@imp.InkCoreRemainingHours h</small>
                             </div>
                         </div>
-                    }
+                        }
+
+                    </div>
 
                 </div>
-
             </div>
         </div>
-    </div>
 
 
     <tbody>
@@ -94,9 +95,9 @@
 
                         @if (Model == null || !Model.Any())
                         {
-                            <div class="alert alert-warning text-center mb-2">
-                                ⚠️ No existen registros en la base de datos. Puedes ingresar nuevos valores en la tabla.
-                            </div>
+                        <div class="alert alert-warning text-center mb-2">
+                            ⚠️ No existen registros en la base de datos. Puedes ingresar nuevos valores en la tabla.
+                        </div>
                         }
 
                         <table class="table table-striped table-impresoras">
@@ -110,7 +111,7 @@
                                     <th>Fecha</th>
                                     <th>Hora</th>
                                     <th>Status</th>
-                                    <th>Tiempo Muerto</th>
+                                    <th>Tiempo Muerto (min)</th>
                                     <th>Comentarios</th>
                                 </tr>
                             </thead>
@@ -195,119 +196,128 @@
 
     </tbody>
 
-    
+   
+
 
     @section Scripts {
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
-        <script>
-            // Botones Editar/Guardar
-            const btnEditar = document.getElementById("btnEditar");
-            const btnGuardar = document.getElementById("btnGuardar");
+    <script>
+        // Botones Editar/Guardar
+        const btnEditar = document.getElementById("btnEditar");
+        const btnGuardar = document.getElementById("btnGuardar");
 
-            btnEditar.addEventListener("click", function () {
+        btnEditar.addEventListener("click", function () {
             document.querySelectorAll(".view").forEach(e => e.classList.add("d-none"));
             document.querySelectorAll(".edit").forEach(e => e.classList.remove("d-none"));
             btnGuardar.classList.remove("d-none");
             btnEditar.classList.add("d-none");
-            });
-        </script>
+        });
+    </script>
 
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
             const data = @Html.Raw(ViewBag.JsonDowntimeData);
 
             console.log("DATOS GRAFICA:", data);
 
             if (Array.isArray(data) && data.length > 0) {
 
-            const labels = data.map(d => d.Fecha.split('-')[2]);
+                const labels = data.map(d => d.Fecha.split('-')[2]);
 
-            const ctx = document.getElementById("downtimeChart").getContext("2d");
+                const ctx = document.getElementById("downtimeChart").getContext("2d");
 
-            new Chart(ctx, {
-            type: "bar",
-            data: {
-            labels: labels,
-            datasets: [{
-            label: "Downtime diario",
-            data: data.map(d => ({
-            x: parseInt(d.Fecha.split('-')[2]),
-            y: d.Total,
-            Detalle: d.Detalle
-            })),
-            backgroundColor: "rgba(54, 162, 235, 0.6)",
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Tiempo muerto diario (minutos)",
+                            data: data.map(d => ({
+                                x: parseInt(d.Fecha.split('-')[2]),
+                                y: d.Total,
+                                Detalle: d.Detalle
+                            })),
+                            backgroundColor: "rgba(54, 162, 235, 0.6)",
+                            borderColor: "rgba(54, 162, 235, 1)",
+                            borderWidth: 1,
 
-            // 👇 barras más delgadas para evitar que se encimen
-            categoryPercentage: 0.7,
-            barPercentage: 0.8
-            }]
-            },
-            options: {
+                            // 👇 barras más delgadas para evitar que se encimen
+                            categoryPercentage: 0.7,
+                            barPercentage: 0.8
+                        }]
+                    },
+                    options: {
 
-            // 👇 mejora detección del mouse
-            interaction: {
-            mode: 'nearest',
-            intersect: true
-            },
+                        // 👇 mejora detección del mouse
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
 
-            responsive: true,
-            maintainAspectRatio: false,
+                        responsive: true,
+                        maintainAspectRatio: false,
 
-            plugins: {
-            tooltip: {
-            enabled: true,
-            backgroundColor: "white",
-            titleColor: "black",
-            bodyColor: "black",
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: "white",
+                                titleColor: "black",
+                                bodyColor: "black",
+                                borderColor: "rgba(54, 162, 235, 1)",
+                                borderWidth: 1,
 
-            callbacks: {
-            title: function (context) {
-            return "Día " + context[0].label;
-            },
+                                callbacks: {
+                                    title: function (context) {
+                                        return "Día " + context[0].label;
+                                    },
 
-            label: function (context) {
+                                    label: function (context) {
 
-            let lines = [
-            `Total : ${context.raw.y} min`
-            ];
+                                        let lines = [
+                                            `Total : ${context.raw.y} min`
+                                        ];
 
-            if (
-            context.raw.Detalle &&
-            Array.isArray(context.raw.Detalle) &&
-            context.raw.Detalle.length > 0
-            ) {
-            context.raw.Detalle.forEach(d => {
-            lines.unshift(
-            `${d.CodigoImpresora} : ${d.Downtime} min`
-            );
-            });
+                                        if (
+                                            context.raw.Detalle &&
+                                            Array.isArray(context.raw.Detalle) &&
+                                            context.raw.Detalle.length > 0
+                                        ) {
+                                            context.raw.Detalle.forEach(d => {
+                                                lines.unshift(
+                                                    `${d.CodigoImpresora} : ${d.Downtime} min`
+                                                );
+                                            });
+                                        }
+
+                                        return lines;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                offset: true,
+                                title: {
+                                    display: true,
+                                    text: "Días"
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Minutos"
+                                }
+                            }
+                        }
+                    }
+                });
             }
+        });
 
-            return lines;
-            }
-            }
-            }
-            },
-
-            scales: {
-            x: {
-            offset: true
-            },
-            y: {
-            beginAtZero: true
-            }
-            }
-            }
-            });
-            }
-            });
-        </script>
+    </script>
 
     }

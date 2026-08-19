@@ -39,11 +39,74 @@
     height: 100vh;
     padding: 10px;
 }
-.content {
-    margin-left: 220px; /* deja espacio al sidebar */
-}
+        .content {
+            margin-left: 220px;
+        }
 
 
+
+        /* ===============================
+   AJUSTE PARA TV / PANTALLA GRANDE
+   =============================== */
+
+        @@media screen and (min-width: 1600px) {
+
+            .sidebar {
+                width: 260px;
+                padding: 15px;
+            }
+
+            .sidebar-image {
+                width: 145px;
+                height: auto;
+            }
+
+            .sidebar a {
+                font-size: 1.05rem;
+                padding: 15px 8px;
+            }
+
+            .main-content {
+                margin-left: 280px;
+                width: calc(100% - 280px);
+                max-width: calc(100% - 280px);
+                padding: 25px 30px;
+                box-sizing: border-box;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .table-dashboard.compact th,
+            .table-dashboard.compact td {
+                padding: 7px 9px;
+                font-size: 15px;
+            }
+
+            .table {
+                font-size: 0.90rem;
+            }
+
+            .card-title {
+                font-size: 1.15rem;
+            }
+
+            .btn {
+                font-size: 0.95rem;
+                padding: 0.5rem 0.9rem;
+            }
+
+            input,
+            select,
+            textarea {
+                font-size: 0.95rem;
+            }
+        }
 
     </style>
 </head>

@@ -134,6 +134,70 @@
         /* Botones debajo de la tabla siempre visibles */
         .card-impresoras .mt-2 {
         margin-top: 0.5rem;
+}
+
+        /* ===============================
+   AJUSTE PARA TV / PANTALLA GRANDE
+   =============================== */
+
+        @@media screen and (min-width: 1600px) {
+            /* Sidebar más grande */
+            .sidebar {
+                width: 260px;
+            }
+
+                .sidebar .logo {
+                    width: 145px;
+                }
+
+            .sidebar-link {
+                font-size: 1.05rem;
+                padding: 15px 8px;
+            }
+            /* Contenido ocupa correctamente el resto de la TV */
+            .content-area {
+                margin-left: 260px;
+                width: calc(100% - 260px);
+                max-width: calc(100% - 260px);
+                padding: 25px 30px;
+                box-sizing: border-box;
+            }
+            /* Títulos */
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .card-header h6 {
+                font-size: 0.85rem;
+            }
+            /* Tabla de impresoras */
+            .table-impresoras {
+                font-size: 0.72rem;
+            }
+
+                .table-impresoras th,
+                .table-impresoras td {
+                    padding: 0.45rem;
+                }
+            /* Botones */
+            .btn {
+                font-size: 0.95rem;
+                padding: 0.5rem 0.9rem;
+            }
+            /* Gráfica */
+            .card-downtime {
+                width: 100%;
+                height: 280px;
+            }
+
+            #downtimeChart {
+                width: 100% !important;
+                height: 245px !important;
+            }
         }
     </style>
 
@@ -148,6 +212,9 @@
                         <a asp-controller="Home" asp-action="Index" class="sidebar-link">Inicio</a>
                         <a asp-controller="Impresoras" asp-action="STATUS" class="sidebar-link">Status Produción</a>
                         <a asp-controller="Mtto" asp-action="Taller" class="sidebar-link">Status Taller de Impresoras </a>
+
+
+
                         <a asp-controller="Home" asp-action="Login" class="sidebar-link">Cerrar sesión</a>
                     </div>
                 </div>

@@ -78,7 +78,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             // ========================================
             // DOWNTIME DEL DÍA
             // ========================================
-            var hoy = DateTime.Today;
+            var hoy = ObtenerFechaOperativa();
 
             foreach (var imp in impresoras)
             {
@@ -195,11 +195,39 @@ namespace EXTRUDERNUCLEOS.Controllers
 
 
 
+        private DateTime ObtenerFechaOperativa()
+        {
+            var ahora = DateTime.Now;
+
+            // El día operativo comienza a las 7:00 AM
+            if (ahora.TimeOfDay < TimeSpan.FromHours(7))
+            {
+                return ahora.Date.AddDays(-1);
+            }
+
+            return ahora.Date;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         private void RegistrarDowntimeHistorico(Impresora imp)
         {
-            var hoy = DateTime.Now.Date;
+            var hoy = ObtenerFechaOperativa();
 
             var historial = _context.DowntimeHistorial
                 .FirstOrDefault(x => x.Fecha.Date == hoy);

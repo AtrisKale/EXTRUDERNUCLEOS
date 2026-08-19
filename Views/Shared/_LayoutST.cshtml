@@ -133,6 +133,79 @@
                 font-size: 0.85rem;
                 padding: 0.25rem 0.5rem;
             }
+
+
+        /* ===============================
+   AJUSTE PARA TV / PANTALLA GRANDE
+   =============================== */
+
+        @@media screen and (min-width: 1600px) {
+
+            .sidebar {
+                width: 260px;
+            }
+
+                .sidebar .logo {
+                    width: 145px;
+                }
+
+            .sidebar-link {
+                font-size: 1.05rem;
+                padding: 15px 8px;
+            }
+
+            .content-area {
+                margin-left: 260px;
+                width: calc(100% - 260px);
+                max-width: calc(100% - 260px);
+                padding: 25px 30px;
+                box-sizing: border-box;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .card-title {
+                font-size: 1.15rem;
+            }
+
+            .card label {
+                font-size: 0.95rem;
+            }
+
+            .card input,
+            .card select,
+            .card button {
+                font-size: 0.95rem;
+            }
+
+            .card-body {
+                padding: 0.75rem;
+            }
+
+            .btn {
+                font-size: 0.95rem;
+                padding: 0.5rem 0.9rem;
+            }
+
+            video.card-img-top {
+                height: 140px;
+            }
+
+            video.video-large {
+                height: 220px;
+            }
+
+            video.video-medium {
+                height: 200px;
+            }
+        }
+
     </style>
 
 </head>

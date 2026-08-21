@@ -7,7 +7,7 @@
     ViewData["Title"] = "Gestión de Impresoras";
     Layout = "_Layout2";
     }
-   
+
 
     <h1>@ViewData["Title"]</h1>
     @if (ViewBag.SinRegistros == true)
@@ -134,8 +134,11 @@
                                         @Html.TextBoxFor(m => m[i].Tipo, new { @class = "form-control edit d-none" })
                                     </td>
                                     <td class="text-center">
-                                        @(Model[i].Additive ? "Yes" : "No")
-                                        @Html.TextBoxFor(m => m[i].Additive, new { @class = "form-control edit d-none" })
+                                        @if (Model[i].Additive)
+                                        {<span class="texto-aditivo">Yes</span>}
+                                        else
+                                        {<span>No</span>}
+                                        @Html.TextBoxFor( m => m[i].Additive, new { @class = "form-control edit d-none" })
                                     </td>
                                     <td>
                                         <span class="view">@Model[i].InkCoreRemainingHours</span>
@@ -196,7 +199,7 @@
 
     </tbody>
 
-   
+
 
 
     @section Scripts {
@@ -319,5 +322,13 @@
         });
 
     </script>
+
+    <script>
+        setInterval(function () {
+            location.reload();
+        }, 60000);
+    </script>
+
+
 
     }

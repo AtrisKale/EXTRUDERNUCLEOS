@@ -26,40 +26,48 @@
         }
 
         <div class="row">
+
             <!-- Extruder 1 -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
-                        <h5 class="card-title">Extruder 1 Videojet</h5>
-                        <input type="hidden" asp-for="@Model[0].LocationExtru" value="1" />
-                        <div class="form-check">
-                            <input asp-for="@Model[0].Additive" class="form-check-input" type="checkbox" />
-                            <label class="form-check-label fw-bold text-primary">Aditivo</label>
+                        <!-- TÍTULO + ADITIVO EN LA MISMA LÍNEA -->
+                        <div class="titulo-con-aditivo">
+                            <h5 class="card-title"> Extruder 1 Videojet</h5>
+                            <div class="aditivo-titulo">
+                                <input asp-for="@Model[0].Additive" type="checkbox" class="form-check-input" />
+                                <label asp-for="@Model[0].Additive"> Aditivo </label>
+                            </div>
                         </div>
+                        <!-- DATOS OCULTOS -->
                         <input type="hidden" asp-for="@Model[0].Id" />
+                        <input type="hidden" asp-for="@Model[0].LocationExtru" value="1" />
                         <input type="hidden" asp-for="@Model[0].Tipo" value="VIDEOJET" />
-
+                        <!-- ID VIDEOJET -->
                         <label>ID Videojet</label>
                         <input asp-for="@Model[0].Codigo" class="form-control form-control-sm" />
+                        <!-- HORAS NÚCLEO -->
                         <label>Horas núcleo restantes</label>
                         <input asp-for="@Model[0].InkCoreRemainingHours" class="form-control form-control-sm" />
+                        <!-- TIEMPO MUERTO -->
                         <label>Tiempo muerto</label>
                         <input asp-for="@Model[0].Downtime" value="@Model[0].Downtime.ToString(" 0")" type="number" step="1" min="0" class="form-control form-control-sm" />
-
+                        <!-- STATUS Y COMENTARIO -->
                         <input type="hidden" asp-for="@Model[0].Status" value="PRODUCCION" />
                         <input type="hidden" asp-for="@Model[0].Comentario" value="SIN COMENTARIOS" />
                     </div>
                 </div>
             </div>
 
+
             <!-- EXT # 2 -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
 
                     <div class="card-body">
@@ -95,8 +103,8 @@
             <!-- Retrabajo -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
                         <h5 class="card-title">Retrabajo Videojet</h5>
@@ -120,8 +128,8 @@
             <!-- Extruder 3 (dos impresoras) -->
             <div class="col-md-6">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top video-large">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top video-large">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
                         <h5 class="card-title">Extruder 3 Videojet (Tinta Blanca & Amarilla)</h5>
@@ -130,7 +138,7 @@
                                 <input type="hidden" asp-for="@Model[3].Id" />
                                 <input type="hidden" asp-for="@Model[3].LocationExtru" value="3" />
                                 <input type="hidden" asp-for="@Model[3].Tipo" value="VIDEOJET" />
-                                <label>ID Videojet</label>
+                                <div class="label-id-tinta"><label>ID Videojet</label> @if (Model[3].Codigo == "13" || Model[3].Codigo == "16"){<span class="badge-tinta-amarilla">TINTA AMARILLA</span>}</div>
                                 <input asp-for="@Model[3].Codigo" class="form-control form-control-sm" />
                                 <label>Horas núcleo restantes</label>
                                 <input asp-for="@Model[3].InkCoreRemainingHours" class="form-control form-control-sm" />
@@ -143,7 +151,7 @@
                                 <input type="hidden" asp-for="@Model[4].Id" />
                                 <input type="hidden" asp-for="@Model[4].LocationExtru" value="3" />
                                 <input type="hidden" asp-for="@Model[4].Tipo" value="VIDEOJET" />
-                                <label>ID Videojet</label>
+                                <div class="label-id-tinta"><label>ID Videojet</label>@if (Model[4].Codigo == "13" || Model[4].Codigo == "16"){<span class="badge-tinta-amarilla">TINTA AMARILLA</span>}</div>
                                 <input asp-for="@Model[4].Codigo" class="form-control form-control-sm" />
                                 <label>Horas núcleo restantes</label>
                                 <input asp-for="@Model[4].InkCoreRemainingHours" class="form-control form-control-sm" />
@@ -160,8 +168,8 @@
             <!-- Extruder 4 -->
             <div class="col-md-6">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top video-medium">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top video-medium">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
                         <h5 class="card-title">Extruder 4 Videojet</h5>
@@ -185,8 +193,8 @@
             <!-- Extruder 5 -->
             <div class="col-md-6">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top video-medium">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top video-medium">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
                         <h5 class="card-title">Extruder 5 Videojet (Aditivo)</h5>
@@ -212,8 +220,8 @@
             <!-- Extruder 6 (dos impresoras) -->
             <div class="col-md-6">
                 <div class="card shadow-sm mb-3">
-                    <video autoplay loop muted playsinline class="card-img-top video-large">
-                        <source src="~/videos/extruder.mp4" type="video/mp4">
+                    <video autoplay loop muted playsinline preload="metadata" class="card-img-top video-large">
+                        <source src="~/videos/extruder_sin_bordes_negros.mp4" type="video/mp4">
                     </video>
                     <div class="card-body">
                         <h5 class="card-title">Extruder 6 Videojet (Tinta Blanca & Amarilla)(Aditivo)</h5>
@@ -222,7 +230,7 @@
                                 <input type="hidden" asp-for="@Model[7].Id" />
                                 <input type="hidden" asp-for="@Model[7].LocationExtru" value="6" />
                                 <input type="hidden" asp-for="@Model[7].Tipo" value="VIDEOJET" />
-                                <label>ID Videojet</label>
+                                <div class="label-id-tinta"><label>ID Videojet</label> @if (Model[7].Codigo == "13" || Model[7].Codigo == "16"){<span class="badge-tinta-amarilla">TINTA AMARILLA</span>}</div>
                                 <input asp-for="@Model[7].Codigo" class="form-control form-control-sm" />
                                 <label>Horas núcleo restantes</label>
                                 <input asp-for="@Model[7].InkCoreRemainingHours" class="form-control form-control-sm" />
@@ -239,7 +247,7 @@
                                 <input type="hidden" asp-for="@Model[8].Id" />
                                 <input type="hidden" asp-for="@Model[8].LocationExtru" value="6" />
                                 <input type="hidden" asp-for="@Model[8].Tipo" value="VIDEOJET" />
-                                <label>ID Videojet</label>
+                                <div class="label-id-tinta"><label>ID Videojet</label> @if (Model[8].Codigo == "13" || Model[8].Codigo == "16"){<span class="badge-tinta-amarilla">TINTA AMARILLA</span>}</div>
                                 <input asp-for="@Model[8].Codigo" class="form-control form-control-sm" />
                                 <label>Horas núcleo restantes</label>
                                 <input asp-for="@Model[8].InkCoreRemainingHours" class="form-control form-control-sm" />
@@ -294,7 +302,7 @@
                         <!-- IMPRESORA CON FALLA -->
                         <div class="mb-3">
                             <label class="form-label">
-                                Impresora con falla
+                                Impresora a mover o con Falla
                             </label>
 
                             <select name="idDanada"
@@ -452,8 +460,8 @@
                     <p>Puedes verificar los cambios o continuar trabajando.</p>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <a href="@Url.Action("Index","Impresoras")" class="btn btn-primary">Ir al Index</a>
-                    <a href="@Url.Action("STATUS","Impresoras")" class="btn btn-secondary">Cerrar</a>
+                    <a href="@Url.Action(" Index","Impresoras")" class="btn btn-primary">Ir al Index</a>
+                    <a href="@Url.Action(" STATUS","Impresoras")" class="btn btn-secondary">Cerrar</a>
                 </div>
             </div>
         </div>
@@ -461,8 +469,11 @@
     }
 
 
+
     @if (TempData["MovimientoRealizado"] != null)
     {
+    var tipoMovimiento = TempData["TipoMovimiento"]?.ToString();
+
     <div class="modal fade show"
          id="movimientoModal"
          tabindex="-1"
@@ -484,14 +495,32 @@
                 </div>
 
                 <div class="modal-body text-center">
-                    <p>
-                        La impresora fue enviada a Taller y la impresora de reemplazo ocupó su ubicación correctamente.
+
+                    @if (tipoMovimiento == "NORMAL")
+                    {
+                    <p class="mb-0">
+                        Movimiento de impresoras realizado correctamente.
                     </p>
+                    }
+                    else if (tipoMovimiento == "FALLA")
+                    {
+                    <p class="mb-0">
+                        La impresora con falla fue enviada a Taller y la impresora
+                        de reemplazo ocupó su ubicación correctamente.
+                    </p>
+                    }
+                    else
+                    {
+                    <p class="mb-0">
+                        Movimiento de impresoras realizado correctamente.
+                    </p>
+                    }
+
                 </div>
 
                 <div class="modal-footer justify-content-center">
 
-                    <a href="@Url.Action("Index","Impresoras")"
+                    <a href="@Url.Action(" Index","Impresoras")"
                        class="btn btn-primary">
                         Ir al Análisis
                     </a>
@@ -510,6 +539,14 @@
     }
 
 
+
+
+    <script>
+        // Recargar automáticamente cada 5 minutos
+        setTimeout(function () {
+            location.reload();
+        }, 300000);
+    </script>
 
 
 

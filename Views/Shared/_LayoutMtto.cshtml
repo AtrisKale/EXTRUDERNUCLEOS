@@ -96,6 +96,120 @@
             }
 
 
+        /* =========================================
+   TABLA PRINCIPAL DE BITÁCORA
+   MÁS VISUAL / MÁS PROFESIONAL
+   ========================================= */
+
+        .tabla-bitacora {
+            border-collapse: separate !important;
+            border-spacing: 0 9px !important;
+            margin-top: 4px;
+        }
+
+            /* ENCABEZADOS */
+            .tabla-bitacora thead th {
+                border: none !important;
+                background: transparent !important;
+                color: #30465a;
+                font-size: 0.82rem;
+                font-weight: 700;
+                text-align: center;
+                padding: 5px 8px 8px 8px;
+            }
+
+
+            /* =========================================
+   FILAS
+   ========================================= */
+
+            .tabla-bitacora tbody tr {
+                background-color: #f7fbfe;
+                transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+            }
+
+                .tabla-bitacora tbody tr:hover {
+                    background-color: #eef7fd;
+                    transform: translateY(-1px);
+                    box-shadow: 0 3px 9px rgba(41, 88, 120, 0.10);
+                }
+
+
+            /* CELDAS */
+            .tabla-bitacora tbody td {
+                padding: 5px 5px;
+                vertical-align: middle;
+                border-top: 1px solid #d8e5ee !important;
+                border-bottom: 1px solid #d8e5ee !important;
+                background-color: #f8fcff;
+            }
+
+
+                /* PRIMERA CELDA */
+                .tabla-bitacora tbody td:first-child {
+                    border-left: 4px solid #3c82ad !important;
+                    border-radius: 9px 0 0 9px;
+                }
+
+
+                /* ÚLTIMA CELDA */
+                .tabla-bitacora tbody td:last-child {
+                    border-right: 1px solid #d8e5ee !important;
+                    border-radius: 0 9px 9px 0;
+                }
+
+
+            /* =========================================
+   INPUTS
+   ========================================= */
+
+            .tabla-bitacora .form-control {
+                height: 36px;
+                border: 1px solid #d6e2ea;
+                border-radius: 6px;
+                background-color: #ffffff;
+                color: #263746;
+                font-size: 0.84rem;
+                box-shadow: none;
+            }
+
+                .tabla-bitacora .form-control[readonly] {
+                    background-color: #ffffff;
+                }
+
+
+        /* =========================================
+   LUPA
+   ========================================= */
+
+        .col-ver {
+            width: 55px;
+            min-width: 55px;
+            text-align: center;
+        }
+
+        .btn-ver-registro {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid #c9dae6;
+            border-radius: 50%;
+            background-color: #edf6fc;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.18s ease;
+        }
+
+            .btn-ver-registro:hover {
+                background-color: #dceefa;
+                border-color: #72a9cb;
+                transform: scale(1.08);
+            }
+
+
             /* 🔧 NUEVO: Tabla más compacta */
             /* 🔧 Ajuste compacto para la tabla de impresoras */
             .card-impresoras {
@@ -122,6 +236,196 @@
             .card-impresoras .mt-2 {
                 margin-top: 0.5rem;
             }
+
+
+        /* =========================================
+   NUEVO REGISTRO
+   ========================================= */
+
+        .nuevo-registro-card {
+            margin-bottom: 22px;
+            background-color: #ffffff;
+            border: 1px solid #dce4ea;
+            border-left: 4px solid #2f6f9f;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+        }
+
+        .nuevo-registro-header {
+            padding: 12px 16px 9px 16px;
+            background: linear-gradient( 90deg, #eef7fd 0%, #f8fbfd 100% );
+            border-bottom: 1px solid #d8e6ef;
+        }
+
+            .nuevo-registro-header h5 {
+                color: #263746;
+                font-weight: 700;
+            }
+
+            .nuevo-registro-header small {
+                color: #7a8792;
+                font-size: 0.75rem;
+            }
+
+        .nuevo-registro-body {
+            padding: 12px 16px 15px 16px;
+        }
+
+
+        .nuevo-registro-card .form-select,
+        .nuevo-registro-card .form-control {
+            border: 1px solid #d7e0e7;
+            border-radius: 7px;
+            background-color: #ffffff;
+            box-shadow: none;
+        }
+
+            .nuevo-registro-card .form-select:focus,
+            .nuevo-registro-card .form-control:focus {
+                border-color: #7fa9ca;
+                box-shadow: 0 0 0 0.18rem rgba(47, 111, 159, 0.12);
+            }
+
+        .select-pendientes {
+            border-left: 3px solid #f0ad4e !important;
+        }
+
+
+
+        .sin-registros {
+            padding: 18px;
+            color: #34495e;
+        }
+
+        .sin-registros-icono {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        .sin-registros strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .sin-registros .text-muted {
+            font-size: 0.85rem;
+        }
+
+
+
+
+   /* =========================================
+           MODAL DETALLE DE BITÁCORA
+   ========================================= */
+        .modal-detalle-mtto {
+            border-top: 4px solid #3c82ad;
+        }
+
+
+        /* HEADER */
+
+        .detalle-header {
+            padding: 18px 22px;
+            background-color: #f7f9fb;
+            border-bottom: 1px solid #dfe5ea;
+        }
+
+            .detalle-header .modal-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #263746;
+            }
+
+        .detalle-subtitulo {
+            color: #7a8792;
+            font-size: 0.82rem;
+        }
+
+
+        /* BODY */
+
+        .detalle-body {
+            padding: 22px;
+            background-color: #ffffff;
+        }
+
+
+        /* TARJETAS SUPERIORES */
+
+        .detalle-dato {
+            height: 72px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 14px;
+            background-color: #f7f9fb;
+            border: 1px solid #dde5eb;
+            border-radius: 9px;
+        }
+
+        .detalle-etiqueta {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #75818c;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 3px;
+        }
+
+        .detalle-valor {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #263746;
+        }
+
+
+        /* SECCIONES */
+
+        .detalle-seccion {
+            margin-bottom: 16px;
+        }
+
+        .detalle-seccion-titulo {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #455560;
+            margin-bottom: 6px;
+        }
+
+        .detalle-texto {
+            padding: 12px 14px;
+            background-color: #f9fbfc;
+            border: 1px solid #dce4e9;
+            border-radius: 8px;
+            color: #303b44;
+            line-height: 1.45;
+        }
+
+        .detalle-texto-grande {
+            min-height: 115px;
+            white-space: pre-wrap;
+        }
+
+        .detalle-motivo {
+            font-weight: 600;
+        }
+
+        .detalle-pendientes {
+            min-height: 60px;
+            border-left: 4px solid #f0ad4e;
+            background-color: #fffaf2;
+        }
+
+
+        /* FOOTER */
+
+        .detalle-footer {
+            padding: 12px 18px;
+            background-color: #f7f9fb;
+            border-top: 1px solid #dfe5ea;
+        }
 
 
         /* ===============================

@@ -35,7 +35,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
             LimpiarComentariosAntiguos();
 
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
             // 🔹 recalcular downtime acumulado desde BD
             //GuardarDowntimeAcumulado();
@@ -56,9 +56,14 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Hora = i.Hora == default ? TimeSpan.Zero : i.Hora,
                     Status = i.Status ?? string.Empty,
                     Downtime = i.Downtime > 1440 ? 0 : i.Downtime,
-                    Comentario = i.Comentario ?? string.Empty
-                })
-                .ToListAsync();
+                    Comentario = i.LocationExtru != "TALLER DE IMPRESORAS" &&
+                    i.Status == "PRODUCCION" &&
+                    !string.IsNullOrWhiteSpace(i.Comentario) &&
+                    i.Comentario.StartsWith("SE RETIRO DE")
+                    ? "SIN COMENTARIOS"
+                    : i.Comentario ?? string.Empty
+                    })
+                   .ToListAsync();
 
             // ========================================
             // ORDEN VISUAL POR UBICACIÓN
@@ -199,7 +204,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         private DateTime ObtenerFechaOperativa()
         {
-           var ahora = ObtenerHoraMonterrey();
+           var ahora = ObtenerHoraMatamoros();
 
             // El día operativo comienza a las 7:00 AM
             if (ahora.TimeOfDay < TimeSpan.FromHours(7))
@@ -342,7 +347,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult GraficaDowntime()
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
             var inicioMes = new DateTime(ahora.Year, ahora.Month, 1);
             var finMes = inicioMes.AddMonths(1).AddDays(-1);
 
@@ -371,7 +376,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public void GuardarDowntimeAcumulado()
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
             var inicioMes = new DateTime(ahora.Year, ahora.Month, 1);
             var finMes = inicioMes.AddMonths(1).AddDays(-1);
 
@@ -446,7 +451,7 @@ namespace EXTRUDERNUCLEOS.Controllers
         // GET: Historial (todos los registros)
         public async Task<IActionResult> Historial()
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
             var impresoras = await _context.Impresoras
                 .OrderBy(i => i.Id)
                 .ThenBy(i => i.Codigo ?? string.Empty)
@@ -588,7 +593,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public async Task<IActionResult> Status()
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
             var registros = await _context.Impresoras
                 .Where(x => x.LocationExtru != "TALLER DE IMPRESORAS")
                 .OrderBy(x => x.Id)
@@ -644,10 +649,11 @@ namespace EXTRUDERNUCLEOS.Controllers
             // EXTRUDER 3 - DOS ESPACIOS
             // =========================
             var ext3 = registros
-                .Where(x => x.LocationExtru == "3")
-                .OrderBy(x => x.Id)
-                .Take(2)
-                .ToList();
+           .Where(x => x.LocationExtru == "3")
+           .OrderBy(x => EsTintaAmarilla(x) ? 1 : 0)
+           .ThenBy(x => x.Id)
+           .Take(2)
+           .ToList();
 
             modelo.Add(ext3.ElementAtOrDefault(0) ?? Vacio("3"));
             modelo.Add(ext3.ElementAtOrDefault(1) ?? Vacio("3"));
@@ -672,10 +678,11 @@ namespace EXTRUDERNUCLEOS.Controllers
             // EXTRUDER 6 - DOS ESPACIOS
             // =========================
             var ext6 = registros
-                .Where(x => x.LocationExtru == "6")
-                .OrderBy(x => x.Id)
-                .Take(2)
-                .ToList();
+            .Where(x => x.LocationExtru == "6")
+            .OrderBy(x => EsTintaAmarilla(x) ? 1 : 0)
+            .ThenBy(x => x.Id)
+            .Take(2)
+            .ToList();
 
             modelo.Add(ext6.ElementAtOrDefault(0) ?? Vacio("6"));
             modelo.Add(ext6.ElementAtOrDefault(1) ?? Vacio("6"));
@@ -734,7 +741,7 @@ namespace EXTRUDERNUCLEOS.Controllers
         [HttpPost]
         public IActionResult ActualizarTodo(List<Impresora> impresoras)
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
 
             // ============================================
@@ -1010,20 +1017,22 @@ namespace EXTRUDERNUCLEOS.Controllers
         }
 
 
-        private DateTime ObtenerHoraMonterrey()
+        private DateTime ObtenerHoraMatamoros()
         {
-            string zona = OperatingSystem.IsWindows()? "Central Standard Time(Mexico)" : "America/Monterrey";
+            string zona = OperatingSystem.IsWindows()
+                ? "Central Standard Time"
+                : "America/Matamoros";
 
-            var zonaMonterrey = TimeZoneInfo.FindSystemTimeZoneById(zona);
+            var zonaMatamoros = TimeZoneInfo.FindSystemTimeZoneById(zona);
 
-            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaMonterrey);
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaMatamoros);
         }
 
 
 
         private void LimpiarComentariosAntiguos()
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
             var impresoras = _context.Impresoras
                 .Where(x =>
@@ -1059,24 +1068,28 @@ namespace EXTRUDERNUCLEOS.Controllers
             _context.SaveChanges();
         }
 
+        private bool EsTintaAmarilla(Impresora imp)
+        {
+            return new[] { "13", "16" }.Contains(imp.Codigo);
+        }
 
 
         [HttpPost]
         public IActionResult MoverImpresora(
-    int idDanada,
-    int idReemplazo,
-    decimal downtime,
-    string motivoCambio)
+       int idDanada,
+       int idReemplazo,
+       decimal downtime,
+       string motivoCambio)
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
-            var danada = _context.Impresoras
+            var origen = _context.Impresoras
                 .FirstOrDefault(x => x.Id == idDanada);
 
             var reemplazo = _context.Impresoras
                 .FirstOrDefault(x => x.Id == idReemplazo);
 
-            if (danada == null || reemplazo == null)
+            if (origen == null || reemplazo == null)
             {
                 TempData["ErrorMovimiento"] =
                     "No se pudo encontrar una de las impresoras.";
@@ -1084,72 +1097,157 @@ namespace EXTRUDERNUCLEOS.Controllers
                 return RedirectToAction(nameof(Status));
             }
 
-            if (danada.Id == reemplazo.Id)
+            if (origen.Id == reemplazo.Id)
             {
                 TempData["ErrorMovimiento"] =
-                    "La impresora de reemplazo debe ser diferente.";
+                    "Debes seleccionar una impresora diferente.";
 
                 return RedirectToAction(nameof(Status));
             }
 
 
-            // =========================================
-            // GUARDAR UBICACIÓN ORIGINAL
-            // =========================================
-            var ubicacionDestino = danada.LocationExtru;
+            // Guardar las dos ubicaciones ANTES de mover nada
+            var ubicacionOrigen = origen.LocationExtru;
+            var ubicacionReemplazo = reemplazo.LocationExtru;
 
 
-            // =========================================
-            // REGISTRAR DOWNTIME
-            // =========================================
-            if (downtime > 0)
+            // =====================================================
+            // CASO 1
+            // LAS DOS ESTÁN EN PRODUCCIÓN
+            //
+            // Solo intercambiar posiciones.
+            // NINGUNA se manda al Taller.
+            // =====================================================
+
+            if (ubicacionOrigen != "TALLER DE IMPRESORAS" &&
+                ubicacionReemplazo != "TALLER DE IMPRESORAS")
             {
-                danada.Downtime = downtime;
+                origen.LocationExtru = ubicacionReemplazo;
+                reemplazo.LocationExtru = ubicacionOrigen;
 
-                RegistrarDowntimeHistorico(danada);
+                origen.Status = "PRODUCCION";
+                reemplazo.Status = "PRODUCCION";
 
-                // Ya quedó registrado en historial
-                danada.Downtime = 0;
+                origen.Fecha = ahora.Date;
+                origen.Hora = ahora.TimeOfDay;
+
+                reemplazo.Fecha = ahora.Date;
+                reemplazo.Hora = ahora.TimeOfDay;
+
+
+                // No estamos reportando una falla.
+                // Por lo tanto NO se manda ninguna al taller.
+                // Tampoco generamos comentario de retiro.
+
+                _context.SaveChanges();
+
+                TempData["MovimientoRealizado"] = true;
+                TempData["TipoMovimiento"] = "NORMAL";
+
+                return RedirectToAction(nameof(Status));
             }
 
 
-            // =========================================
-            // GUARDAR MOTIVO DEL CAMBIO
-            // =========================================
-            if (!string.IsNullOrWhiteSpace(motivoCambio))
+
+            // =====================================================
+            // CASO 2
+            // REEMPLAZO DESDE EL TALLER
+            //
+            // Aquí sí conservamos la lógica de falla/reemplazo.
+            // =====================================================
+
+            if (ubicacionReemplazo == "TALLER DE IMPRESORAS")
             {
-                danada.Comentario =
-                      $"SE RETIRO DE {ubicacionDestino}: {motivoCambio.Trim()} - [{ahora:dd/MM/yyyy}]";
+                var ubicacionDestino = ubicacionOrigen;
+
+
+                // -----------------------------------------
+                // REGISTRAR DOWNTIME
+                // -----------------------------------------
+
+                if (downtime > 0)
+                {
+                    origen.Downtime = downtime;
+
+                    RegistrarDowntimeHistorico(origen);
+
+                    origen.Downtime = 0;
+                }
+
+
+                // -----------------------------------------
+                // COMENTARIO DE FALLA
+                // -----------------------------------------
+
+                if (!string.IsNullOrWhiteSpace(motivoCambio))
+                {
+                    origen.Comentario =
+                        $"SE RETIRO DE {ubicacionDestino}: " +
+                        $"{motivoCambio.Trim()} - " +
+                        $"[{ahora:dd/MM/yyyy}]";
+                }
+                else
+                {
+                    origen.Comentario = "SIN COMENTARIOS";
+                }
+
+
+                // -----------------------------------------
+                // MANDAR LA DAÑADA AL TALLER
+                // -----------------------------------------
+
+                origen.LocationExtru =
+                    "TALLER DE IMPRESORAS";
+
+                origen.Status =
+                    "MAINTENANCE";
+
+                origen.Fecha =
+                    ahora.Date;
+
+                origen.Hora =
+                    ahora.TimeOfDay;
+
+
+                // -----------------------------------------
+                // SACAR REEMPLAZO DEL TALLER
+                // Y MANDARLO A PRODUCCIÓN
+                // -----------------------------------------
+
+                reemplazo.LocationExtru =
+                    ubicacionDestino;
+
+                reemplazo.Status =
+                    "PRODUCCION";
+
+                reemplazo.Fecha =
+                    ahora.Date;
+
+                reemplazo.Hora =
+                    ahora.TimeOfDay;
+
+                // Al regresar del taller ya no debe
+                // conservar el comentario de falla anterior.
+                reemplazo.Comentario =
+                    "SIN COMENTARIOS";
+
+
+                _context.SaveChanges();
+
+                _context.SaveChanges();
+
+                TempData["MovimientoRealizado"] = true;
+                TempData["TipoMovimiento"] = "FALLA";
+
+               
+
+                return RedirectToAction(nameof(Status));
             }
-            else
-            {
-                danada.Comentario = "SIN COMENTARIOS";
-            }
-
-            // =========================================
-            // MANDAR LA DAÑADA AL TALLER
-            // =========================================
-            danada.LocationExtru = "TALLER DE IMPRESORAS";
-            danada.Status = "MAINTENANCE";
-            danada.Fecha = ahora.Date;
-            danada.Hora = ahora.TimeOfDay;
 
 
-            // =========================================
-            // MOVER REEMPLAZO AL LUGAR DE LA DAÑADA
-            // =========================================
-            reemplazo.LocationExtru = ubicacionDestino;
-            reemplazo.Status = "PRODUCCION";
-            reemplazo.Fecha = ahora.Date;
-            reemplazo.Hora = ahora.TimeOfDay;
-
-
-            // =========================================
-            // GUARDAR TODO
-            // =========================================
-            _context.SaveChanges();
-
-            TempData["MovimientoRealizado"] = true;
+            // Si llegó alguna combinación no contemplada
+            TempData["ErrorMovimiento"] =
+                "No se pudo realizar el movimiento.";
 
             return RedirectToAction(nameof(Status));
         }
@@ -1162,7 +1260,7 @@ namespace EXTRUDERNUCLEOS.Controllers
         [HttpPost]
         public IActionResult AgregarAlTaller(int id)
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
             var impresora = _context.Impresoras
                 .FirstOrDefault(x => x.Id == id);
@@ -1193,7 +1291,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             int? idDesplazada,
             string? ubicacionDesplazada)
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
             var impresora = _context.Impresoras
                 .FirstOrDefault(x => x.Id == id);
@@ -1290,7 +1388,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                 Console.WriteLine("MODELSTATE INVALIDO");
             }
             
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
             
             foreach (var imp in impresoras)
             {
@@ -1308,6 +1406,10 @@ namespace EXTRUDERNUCLEOS.Controllers
                         : imp.Codigo;
 
                     dbImp.InkCoreRemainingHours = imp.InkCoreRemainingHours;
+
+                    // Guardar checkbox Aditivo
+                    dbImp.Additive = imp.Additive;
+
                     dbImp.Downtime = imp.Downtime;
                     dbImp.Comentario = imp.Comentario;
                     dbImp.Fecha = ahora.Date;

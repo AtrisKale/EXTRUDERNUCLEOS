@@ -1,425 +1,918 @@
 ﻿@model List<EXTRUDERNUCLEOS.Models.Bitacora>
-@{
+
+    @{
     bool modoEdicion = ViewBag.ModoEdicion ?? false;
-    int totalFilas = 10; // siempre mostrar 10 filas
     Layout = "_LayoutMtto";
-}
+
+    var impresorasBitacora =
+    ViewBag.ImpresorasBitacora as List<EXTRUDERNUCLEOS.Models.Impresora>
+        ?? new List<EXTRUDERNUCLEOS.Models.Impresora>
+            ();
 
 
-<div class="row">
-
-    <form asp-action="Bitacora" method="get" class="mb-3">
-        <div class="input-group">
-            <!-- Mostrar siempre el valor que se usó en el filtro -->
-            <input type="number" name="filtroId" class="form-control"
-                   placeholder="Filtrar por ID Videojet"
-                   value="@ViewBag.FiltroId" />
-            <button type="submit" class="btn btn-secondary">Filtrar</button>
-            <a asp-action="Bitacora" class="btn btn-outline-dark">Quitar filtro</a>
-        </div>
-    </form>
+            var videojets = impresorasBitacora
+            .Where(x => x.Tipo == "VIDEOJET")
+            .OrderBy(x =>
+            int.TryParse(x.Codigo, out var numero)
+            ? numero
+            : int.MaxValue)
+            .ToList();
 
 
-    @if (ViewBag.SinRegistros == true)
-    {
-        <div class="alert alert-warning text-center mb-3">
-            ⚠ No existen registros en la base de datos
-        </div>
-    }
+            var linx = impresorasBitacora
+            .Where(x => x.Tipo == "LINX")
+            .OrderBy(x =>
+            int.TryParse(x.Codigo, out var numero)
+            ? numero
+            : int.MaxValue)
+            .ToList();
+            }
 
 
 
-    <!-- Tabla ocupa 3/4 -->
-    <div class="col-md-9">
+            <div class="row">
 
-        <h2 class="mb-3">Bitácora de Impresoras</h2>
 
-        <form asp-action="GuardarBitacora"
-              asp-controller="Mtto"
-              method="post">
+                <!-- =========================================
+                     FILTRO
+                     ========================================= -->
 
-            <!-- NUEVO REGISTRO -->
-            <div class="border rounded p-3 mb-4 bg-light">
+                <form asp-action="Bitacora"
+                      method="get"
+                      class="mb-3">
 
-                <h5 class="mb-3">Nuevo registro</h5>
+                    <div class="input-group">
 
-                <div class="row g-2 align-items-end">
-
-                    <div class="col">
-                        <input name="nuevo.IdVideojet"
+                        <input type="number"
+                               name="filtroId"
                                class="form-control"
-                               placeholder="ID Videojet" />
-                    </div>
+                               placeholder="Filtrar por ID Impresora"
+                               value="@ViewBag.FiltroId" />
 
-                    <div class="col">
-                        <input name="nuevo.MotivoMtto"
-                               class="form-control"
-                               placeholder="Motivo de mtto" />
-                    </div>
-
-                    <div class="col">
-                        <input name="nuevo.Procedimiento"
-                               class="form-control"
-                               placeholder="Procedimiento" />
-                    </div>
-
-                    <div class="col">
-                        <input name="nuevo.Fecha"
-                               type="date"
-                               value="@DateTime.Today.ToString(" yyyy-MM-dd")"
-                               class="form-control" />
-                    </div>
-
-                    <div class="col">
-                        <input name="nuevo.Turno"
-                               class="form-control"
-                               placeholder="Turno" />
-                    </div>
-
-                    <div class="col">
-                        <input name="nuevo.Pendientes"
-                               class="form-control"
-                               placeholder="Pendientes" />
-                    </div>
-
-                    <div class="col-auto">
                         <button type="submit"
-                                class="btn btn-success">
-                            Agregar
+                                class="btn btn-secondary">
+                            Filtrar
                         </button>
+
+                        <a asp-action="Bitacora"
+                           class="btn btn-outline-dark">
+                            Quitar filtro
+                        </a>
+
                     </div>
+
+                </form>
+
+
+                @if (ViewBag.SinRegistros == true)
+                {
+                <div class="alert alert-warning text-center mb-3">
+                    ⚠ No existen registros en la base de datos
+                </div>
+                }
+
+
+                <!-- =========================================
+                     COLUMNA PRINCIPAL
+                     ========================================= -->
+
+                <div class="col-md-9">
+
+                    <h2 class="mb-3">
+                        Bitácora de Impresoras
+                    </h2>
+
+
+                    <form asp-action="GuardarBitacora"
+                          asp-controller="Mtto"
+                          method="post"
+                          id="formBitacora">
+
+
+                        <!-- =========================================
+                        NUEVO REGISTRO
+                        ========================================= -->
+
+                        <div class="nuevo-registro-card">
+
+                            <div class="nuevo-registro-header">
+
+                                <div>
+                                    <h5 class="mb-0">
+                                        Nuevo registro
+                                    </h5>
+
+                                    <small>
+                                        Captura de mantenimiento de impresoras
+                                    </small>
+                                </div>
+
+                            </div>
+
+                            <div class="nuevo-registro-body">
+
+
+                                <div class="row g-2 align-items-end">
+
+
+                                    <!-- IMPRESORA -->
+
+                                    <div class="col">
+
+                                        <select name="nuevo.IdVideojet"
+                                                class="form-select select-impresora"
+                                                required>
+
+                                            <option value=""
+                                                    selected
+                                                    disabled>
+                                                Seleccionar impresora...
+                                            </option>
+
+
+                                            @if (videojets.Any())
+                                            {
+                                            <optgroup label="VIDEOJET">
+
+                                                @foreach (var imp in videojets)
+                                                {
+                                                <option value="@imp.Codigo">
+                                                    Videojet #@imp.Codigo
+                                                </option>
+                                                }
+
+                                            </optgroup>
+                                            }
+
+
+                                            @if (linx.Any())
+                                            {
+                                            <optgroup label="LINX">
+
+                                                @foreach (var imp in linx)
+                                                {
+                                                <option value="@imp.Codigo">
+                                                    Linx #@imp.Codigo
+                                                </option>
+                                                }
+
+                                            </optgroup>
+                                            }
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <!-- MOTIVO -->
+
+                                    <div class="col">
+
+                                        <select name="nuevo.MotivoMtto"
+                                                class="form-select"
+                                                required>
+
+                                            <option value=""
+                                                    selected
+                                                    disabled>
+                                                Motivo de mtto...
+                                            </option>
+
+                                            <option value="MTTO PREVENTIVO">MTTO PREVENTIVO</option>
+
+                                            <option value="PRESION BAJA">PRESION BAJA</option>
+
+                                            <option value="PRESION ALTA">PRESION ALTA</option>
+
+                                            <option value="DISPARO EHT">DISPARO EHT</option>
+
+                                            <option value="MEZCLADO PROGRAMADO">MEZCLADO PROGRAMADO</option>
+
+                                            <option value="MEZCLADO CORTO O LARGO">MEZCLADO CORTO O LARGO</option>
+
+                                            <option value="NO IMPRIME BIEN">NO IMPRIME BIEN</option>
+
+                                            <option value="MES EQUIVOCADO">MES EQUIVOCADO</option>
+
+                                            <option value="FALLO DE BOMBA">FALLO DE BOMBA</option>
+
+                                            <option value="REEMPLAZO DE NUCLEO">REEMPLAZO DE NUCLEO</option>
+
+                                            <option value="PARAMETROS FUERA DE RANGO">PARAMETROS FUERA DE RANGO</option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <!-- PROCEDIMIENTO -->
+
+                                    <div class="col">
+
+                                        <input name="nuevo.Procedimiento"
+                                               class="form-control"
+                                               placeholder="Procedimiento"
+                                               required />
+
+                                    </div>
+
+
+                                    <!-- FECHA -->
+
+                                    <div class="col">
+
+                                        <input name="nuevo.Fecha"
+                                               type="date"
+                                               class="form-control"
+                                               required />
+
+                                    </div>
+
+
+                                    <!-- TURNO -->
+
+                                    <div class="col">
+
+                                        <select name="nuevo.Turno"
+                                                class="form-select"
+                                                required>
+
+                                            <option value=""
+                                                    selected
+                                                    disabled>
+                                                Seleccionar turno...
+                                            </option>
+
+                                            <option value="1ERO">1ERO</option>
+
+                                            <option value="2DO">2DO</option>
+
+                                            <option value="3ERO">3ERO</option>
+
+                                            <option value="4TO">4TO</option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <!-- PENDIENTES -->
+
+                                    <div class="col">
+
+                                        <select name="nuevo.Pendientes"
+                                                class="form-select"
+                                                required>
+
+                                            <option value=""
+                                                    selected
+                                                    disabled>
+                                                Pendientes...
+                                            </option>
+
+                                            <option value="SIN PENDIENTES">SIN PENDIENTES</option>
+                                            <option value="REVISAR FUNCIONAMIENTO">REVISAR FUNCIONAMIENTO</option>
+                                            <option value="MONITOREAR IMPRESION">MONITOREAR IMPRESION</option>
+                                            <option value="CAMBIO DE PARTE PENDIENTE">AMBIO DE PARTE PENDIENTE</option>
+                                            <option value="INSTALAR EN PRODUCCION">INSTALAR EN PRODUCCION</option>
+                                            <option value="AJUSTAR PARAMETROS">AJUSTAR PARAMETROS</option>
+
+
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <!-- AGREGAR -->
+
+                                    <div class="col-auto">
+
+                                        <button type="submit"
+                                                name="accion"
+                                                value="agregar"
+                                                class="btn btn-success">
+                                            Agregar
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+
+
+
+                                <!-- =========================================
+                                TABLA PRINCIPAL
+                                ========================================= -->
+
+                                <table class="table tabla-bitacora">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>ID Impresora</th>
+
+                                            <th>
+                                                Motivo de mtto
+                                            </th>
+
+                                            <th>
+                                                Procedimiento
+                                            </th>
+
+                                            <th>
+                                                Fecha
+                                            </th>
+
+                                            <th>
+                                                Turno
+                                            </th>
+
+                                            <th>
+                                                Pendientes
+                                            </th>
+
+                                            <th class="col-ver">
+                                                Ver
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+
+                                    <tbody>
+
+                                        @for (int i = 0; i < Model.Count; i++)
+                                        {
+                                        var item = Model[i];
+
+                                        <tr>
+
+                                            <input type="hidden"
+                                                   name="bitacora[@i].Id"
+                                                   value="@item.Id" />
+
+
+                                            <!-- ID -->
+
+                                            <td>
+
+                                                <input name="bitacora[@i].IdVideojet"
+                                                       value="@item.IdVideojet"
+                                                       class="form-control"
+                                                       @(modoEdicion ? "" : "readonly" ) />
+
+                                            </td>
+
+
+                                            <!-- MOTIVO -->
+
+                                            <td>
+
+                                                <input name="bitacora[@i].MotivoMtto"
+                                                       value="@item.MotivoMtto"
+                                                       class="form-control"
+                                                       @(modoEdicion ? "" : "readonly" ) />
+
+                                            </td>
+
+
+                                            <!-- PROCEDIMIENTO -->
+
+                                            <td>
+
+                                                <input name="bitacora[@i].Procedimiento"
+                                                       value="@item.Procedimiento"
+                                                       class="form-control"
+                                                       @(modoEdicion ? "" : "readonly" ) />
+
+                                            </td>
+
+
+                                            <!-- FECHA -->
+
+                                            <td>
+
+                                                <input name="bitacora[@i].Fecha"
+                                                       value="@item.Fecha.ToString(" dd /MM/yyyy")"
+                                                       class="form-control"
+                                                       readonly />
+
+                                            </td>
+
+
+                                            <!-- TURNO -->
+
+                                            <td>
+
+                                                <input name="bitacora[@i].Turno"
+                                                       value="@item.Turno"
+                                                       class="form-control"
+                                                       @(modoEdicion ? "" : "readonly" ) />
+
+                                            </td>
+
+
+                                            <!-- PENDIENTES -->
+
+                                            <td>
+
+                                                <input name="bitacora[@i].Pendientes"
+                                                       value="@item.Pendientes"
+                                                       class="form-control"
+                                                       @(modoEdicion ? "" : "readonly" ) />
+
+                                            </td>
+
+
+                                            <!-- VER -->
+
+                                            <td class="col-ver">
+
+                                                <button type="button"
+                                                        class="btn-ver-registro"
+                                                        title="Ver registro completo"
+                                                        onclick="verRegistro(
+                                            '@item.IdVideojet',
+                                            '@item.MotivoMtto',
+                                            '@item.Procedimiento',
+                                            '@item.Fecha.ToString(" dd /MM/yyyy")',
+                                                        '@item.Turno' ,
+                                                        '@item.Pendientes'
+                                                        )">
+
+                                                    🔍
+
+                                                </button>
+
+                                            </td>
+
+                                        </tr>
+                                        }
+
+
+
+                                        @if (Model != null && Model.Any())
+                                        {
+                                        @foreach (var item in Model)
+                                        {
+                                        <tr>
+                                            <!-- aquí van tus columnas normales del registro -->
+                                        </tr>
+                                        }
+                                        }
+                                        else
+                                        {
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4">
+                                                <div class="sin-registros">
+                                                    <div class="sin-registros-icono">📋</div>
+                                                    <strong>No hay registros de mantenimiento</strong>
+                                                    <div class="text-muted">
+                                                        Agrega el primer registro desde la sección superior.
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        }
+
+                                    </tbody>
+
+                                </table>
+
+
+                                <!-- BOTONES -->
+
+                                <div class="mt-2">
+
+                                    @if (!modoEdicion)
+                                    {
+                                    <a asp-action="Bitacora"
+                                       asp-route-editar="true"
+                                       asp-route-filtroId="@ViewBag.FiltroId"
+                                       class="btn btn-primary">
+
+                                        Editar
+
+                                    </a>
+                                    }
+                                    else
+                                    {
+                                    <button type="submit"
+                                            name="accion"
+                                            value="guardar"
+                                            class="btn btn-success">
+
+                                        Guardar cambios
+
+                                    </button>
+
+                                    <a asp-action="Bitacora"
+                                       asp-route-filtroId="@ViewBag.FiltroId"
+                                       class="btn btn-secondary">
+
+                                        Cancelar
+
+                                    </a>
+                                    }
+
+
+                                    <a asp-action="HistorialBitacora"
+                                       class="btn btn-secondary ms-2">
+
+                                        Ver historial completo
+
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </form>
+
+                    <!-- HISTORIAL -->
+                    <!-- =========================================
+                    MODAL DETALLE DEL REGISTRO
+                    ========================================= -->
+
+                    <div class="modal fade"
+                         id="modalRegistroBitacora"
+                         tabindex="-1"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+
+                            <div class="modal-content modal-detalle-mtto">
+
+
+                                <!-- HEADER -->
+
+                                <div class="modal-header detalle-header">
+
+                                    <div>
+
+                                        <h5 class="modal-title mb-1">
+                                            Detalle del registro de mantenimiento
+                                        </h5>
+
+                                        <small class="detalle-subtitulo">
+                                            Información completa del servicio realizado
+                                        </small>
+
+                                    </div>
+
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Cerrar">
+                                    </button>
+
+                                </div>
+
+
+                                <!-- BODY -->
+
+                                <div class="modal-body detalle-body">
+
+
+                                    <!-- DATOS PRINCIPALES -->
+
+                                    <div class="row g-3 mb-4">
+
+
+                                        <div class="col-md-4">
+
+                                            <div class="detalle-dato">
+
+                                                <span class="detalle-etiqueta">
+                                                    ID Impresora
+                                                </span>
+
+                                                <span id="detalleId"
+                                                      class="detalle-valor">
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-md-4">
+
+                                            <div class="detalle-dato">
+
+                                                <span class="detalle-etiqueta">
+                                                    Fecha
+                                                </span>
+
+                                                <span id="detalleFecha"
+                                                      class="detalle-valor">
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="col-md-4">
+
+                                            <div class="detalle-dato">
+
+                                                <span class="detalle-etiqueta">
+                                                    Turno
+                                                </span>
+
+                                                <span id="detalleTurno"
+                                                      class="detalle-valor">
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- MOTIVO -->
+
+                                    <div class="detalle-seccion">
+
+                                        <div class="detalle-seccion-titulo">
+                                            Motivo de mantenimiento
+                                        </div>
+
+                                        <div id="detalleMotivo"
+                                             class="detalle-texto detalle-motivo">
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- PROCEDIMIENTO -->
+
+                                    <div class="detalle-seccion">
+
+                                        <div class="detalle-seccion-titulo">
+                                            Procedimiento realizado
+                                        </div>
+
+                                        <div id="detalleProcedimiento"
+                                             class="detalle-texto detalle-texto-grande">
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- PENDIENTES -->
+
+                                    <div class="detalle-seccion mb-0">
+
+                                        <div class="detalle-seccion-titulo">
+                                            Pendientes
+                                        </div>
+
+                                        <div id="detallePendientes"
+                                             class="detalle-texto detalle-pendientes">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- FOOTER -->
+
+                                <div class="modal-footer detalle-footer">
+
+                                    <button type="button"
+                                            class="btn btn-secondary px-4"
+                                            data-bs-dismiss="modal">
+
+                                        Cerrar
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
 
                 </div>
 
-            </div>
 
-            <!-- HISTORIAL -->
-            <table class="table table-striped">
 
-                <thead>
-                    <tr>
-                        <th>ID Videojet</th>
-                        <th>Motivo de mtto</th>
-                        <th>Procedimiento</th>
-                        <th>Fecha</th>
-                        <th>Turno</th>
-                        <th>Pendientes</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @for (int i = 0; i < Model.Count; i++)
-                    {
-                        var item = Model[i];
-
-                        <tr>
-
-                            <input type="hidden"
-                                   name="bitacora[@i].BitacoraId"
-                                   value="@item.Id" />
-
-                            <td>
-                                <input name="bitacora[@i].IdVideojet"
-                                       value="@item.IdVideojet"
-                                       class="form-control"
-                                @(modoEdicion ? "" : "readonly" ) />
-                            </td>
-
-                            <td>
-                                <input name="bitacora[@i].MotivoMtto"
-                                       value="@item.MotivoMtto"
-                                       class="form-control"
-                                @(modoEdicion ? "" : "readonly" ) />
-                            </td>
-
-                            <td>
-                                <input name="bitacora[@i].Procedimiento"
-                                       value="@item.Procedimiento"
-                                       class="form-control"
-                                @(modoEdicion ? "" : "readonly" ) />
-                            </td>
-
-                            <td>
-                                @if (item.Id > 0)
-                                {
-                                    <input value="@item.Fecha.ToString(" dd /MM/yyyy")"
-                                           class="form-control"
-                                           readonly />
-                                }
-                                else
-                                {
-                                    <input class="form-control"
-                                           readonly />
-                                }
-                            </td>
-
-                            <td>
-                                <input name="bitacora[@i].Turno"
-                                       value="@item.Turno"
-                                       class="form-control"
-                                @(modoEdicion ? "" : "readonly" ) />
-                            </td>
-
-                            <td>
-                                <input name="bitacora[@i].Pendientes"
-                                       value="@item.Pendientes"
-                                       class="form-control"
-                                @(modoEdicion ? "" : "readonly" ) />
-                            </td>
-
-                        </tr>
-                    }
-
-                    @for (int i = Model.Count; i < 8; i++)
-                    {
-                        <tr>
-                            <td><input class="form-control" readonly /></td>
-                            <td><input class="form-control" readonly /></td>
-                            <td><input class="form-control" readonly /></td>
-                            <td><input class="form-control" readonly /></td>
-                            <td><input class="form-control" readonly /></td>
-                            <td><input class="form-control" readonly /></td>
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
-
-            <div class="mt-3">
-
-                @if (modoEdicion)
-                {
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Guardar cambios
-                    </button>
-                }
-                else
-                {
-                    <a asp-action="Bitacora"
-                           asp-route-editar="true"
-                           class="btn btn-primary">
-                        Editar
+                <!-- Columna del card (1/4) -->
+                <div class="col-md-3">
+                    <!-- Primer cuadro: Taller de impresoras -->
+                    <a asp-controller="Mtto" asp-action="Taller" class="card-link">
+                        <div class="card shadow-sm">
+                            <img src="~/images/taller.png" class="card-img-top" alt="Productos">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Backup</h5>
+                                <p class="card-text">Status de Taller de impresoras</p>
+                            </div>
+                        </div>
                     </a>
-                }
-
-                    
-
-                <a asp-action="HistorialBitacora"
-                       class="btn btn-secondary ms-2">
-                    Ver historial completo
-                </a>
-
-            </div>
-
-        </form>
-
-    </div>
-
-    <!-- Columna del card (1/4) -->
-    <div class="col-md-3">
-        <!-- Primer cuadro: Taller de impresoras -->
-        <a asp-controller="Mtto" asp-action="Taller" class="card-link">
-            <div class="card shadow-sm">
-                <img src="~/images/taller.png" class="card-img-top" alt="Productos">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Backup</h5>
-                        <p class="card-text">Status de Taller de impresoras</p>
-                    </div>
-                </div>
-            </a>
 
 
-            <div class="card shadow-sm mt-3"
-                 style="
+                    <div class="card shadow-sm mt-3"
+                         style="
                 background-color: #f8fbfd;
                 border: 1px solid #d7e2ea;
                 border-radius: 12px;
                 overflow: hidden;
                 ">
 
-         
 
 
 
-                <div class="card-body text-center p-2">
 
-                    <!-- TÍTULO -->
-                    <div class="mb-1">
+                        <div class="card-body text-center p-2">
 
-                        <h5 class="card-title mb-0"
-                            style="
+                            <!-- TÍTULO -->
+                            <div class="mb-1">
+
+                                <h5 class="card-title mb-0"
+                                    style="
                             font-weight: 600;
                             color: #1f2d3d;
                             font-size: 1.05rem;
                             ">
-                            Contraseñas del día
-                        </h5>
+                                    Contraseñas del día
+                                </h5>
 
-                        <small style="
+                                <small style="
                             color: #6c757d;
                             font-size: 0.75rem;
                             ">
-                            Programación semanal
-                        </small>
+                                    Programación semanal
+                                </small>
 
-                    </div>
-
-
-                    <form id="formContrasenas">
-
-                        <!-- Menor separación vertical -->
-                        <div class="row gx-1 gy-0">
-
-                            <!-- DÍA 1 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha1"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd1"
-                                       placeholder="#1"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
                             </div>
 
 
-                            <!-- DÍA 2 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha2"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
+                            <form id="formContrasenas">
 
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd2"
-                                       placeholder="#2"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
+                                <!-- Menor separación vertical -->
+                                <div class="row gx-1 gy-0">
 
+                                    <!-- DÍA 1 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha1"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
-                            <!-- DÍA 3 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha3"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd3"
-                                       placeholder="#3"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd1"
+                                               placeholder="#1"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
 
-                            <!-- DÍA 4 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha4"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
+                                    <!-- DÍA 2 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha2"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd4"
-                                       placeholder="#4"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-
-                            <!-- DÍA 5 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha5"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd5"
-                                       placeholder="#5"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd2"
+                                               placeholder="#2"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
 
-                            <!-- DÍA 6 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha6"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
+                                    <!-- DÍA 3 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha3"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd6"
-                                       placeholder="#6"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-
-                            <!-- DÍA 7 -->
-                            <div class="col-6">
-                                <input type="date"
-                                       id="fecha7"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-                            <div class="col-6">
-                                <input type="text"
-                                       id="pwd7"
-                                       placeholder="#7"
-                                       class="form-control form-control-sm text-center"
-                                       style="height: 31px; font-size: 0.82rem;" />
-                            </div>
-
-                        </div>
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd3"
+                                               placeholder="#3"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
 
-                        <!-- BOTÓN GUARDAR -->
-                        <div class="mt-1 pt-1"
-                             style="border-top: 1px solid #dce3e8;">
+                                    <!-- DÍA 4 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha4"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
 
-                            <button type="button"
-                                    class="btn btn-sm btn-primary px-3 py-1"
-                                    style="
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd4"
+                                               placeholder="#4"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+
+                                    <!-- DÍA 5 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha5"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd5"
+                                               placeholder="#5"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+
+                                    <!-- DÍA 6 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha6"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd6"
+                                               placeholder="#6"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+
+                                    <!-- DÍA 7 -->
+                                    <div class="col-6">
+                                        <input type="date"
+                                               id="fecha7"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <input type="text"
+                                               id="pwd7"
+                                               placeholder="#7"
+                                               class="form-control form-control-sm text-center"
+                                               style="height: 31px; font-size: 0.82rem;" />
+                                    </div>
+
+                                </div>
+
+
+                                <!-- BOTÓN GUARDAR -->
+                                <div class="mt-1 pt-1"
+                                     style="border-top: 1px solid #dce3e8;">
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-primary px-3 py-1"
+                                            style="
                                 border-radius: 6px;
                                 font-weight: 500;
                                 font-size: 0.80rem;
                                 "
-                                    onclick="guardarContrasenas()">
+                                            onclick="guardarContrasenas()">
 
-                                Guardar
+                                        Guardar
 
-                            </button>
+                                    </button>
+
+                                </div>
+
+                            </form>
 
                         </div>
 
-                    </form>
+                    </div>
 
-                </div>
-
-            </div>
-
-            <script>
+                    <script>
                         function guardarContrasenas() {
                             for (let i = 1; i <= 7; i++) {
                                 localStorage.setItem("fecha" + i, document.getElementById("fecha" + i).value);
@@ -438,4 +931,89 @@
                                 }
                             }
                         });
-            </script>
+                    </script>
+
+                    <script>
+
+                        /* =========================================
+                           EVITAR QUE ENTER AGREGUE UN REGISTRO
+                           ========================================= */
+
+                        document.addEventListener("DOMContentLoaded", function () {
+
+                            const form =
+                                document.getElementById("formBitacora");
+
+                            if (!form) {
+                                return;
+                            }
+
+                            form.addEventListener("keydown", function (event) {
+
+                                if (event.key === "Enter") {
+                                    event.preventDefault();
+                                }
+
+                            });
+
+                        });
+
+                    </script>
+
+
+                    <script>
+
+                        /* =========================================
+                           ABRIR DETALLE DEL REGISTRO
+                           ========================================= */
+
+                        function verRegistro(
+                            id,
+                            motivo,
+                            procedimiento,
+                            fecha,
+                            turno,
+                            pendientes
+                        ) {
+
+                            document
+                                .getElementById("detalleId")
+                                .textContent = id;
+
+                            document
+                                .getElementById("detalleMotivo")
+                                .textContent = motivo;
+
+                            document
+                                .getElementById("detalleProcedimiento")
+                                .textContent = procedimiento;
+
+                            document
+                                .getElementById("detalleFecha")
+                                .textContent = fecha;
+
+                            document
+                                .getElementById("detalleTurno")
+                                .textContent = turno;
+
+                            document
+                                .getElementById("detallePendientes")
+                                .textContent = pendientes;
+
+
+                            const modalElemento =
+                                document.getElementById(
+                                    "modalRegistroBitacora"
+                                );
+
+
+                            const modal =
+                                bootstrap.Modal.getOrCreateInstance(
+                                    modalElemento
+                                );
+
+
+                            modal.show();
+                        }
+
+                    </script>

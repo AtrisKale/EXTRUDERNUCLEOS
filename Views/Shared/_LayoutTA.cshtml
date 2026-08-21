@@ -91,7 +91,7 @@
 
             /* Aplica a todos los videos en cards normales */
             video.card-img-top {
-                object-fit: cover;
+                object-fit: contain;
                 width: 100%;
                 height: 110px; /* compacto */
                 display: block;
@@ -111,7 +111,7 @@
             video.videotaller {
                 width: 100%; /* ocupa todo el ancho */
                 height: 450px; /* ocupa toda la altura del card */
-                object-fit: cover; /* recorta el video para llenar sin bordes */
+                object-fit: contain; /* recorta el video para llenar sin bordes */
                 border-radius: 0; /* opcional, sin esquinas redondeadas */
                 display: block;
             }
@@ -247,6 +247,36 @@
                 font-size: 0.90rem;
             }
         }
+
+
+        .titulo-con-aditivo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .titulo-con-aditivo .card-title {
+                margin: 0;
+            }
+
+        .aditivo-titulo {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .aditivo-titulo input[type="checkbox"] {
+                width: 15px;
+                height: 15px;
+                margin: 0 !important;
+            }
+
+            .aditivo-titulo label {
+                margin: 0 !important;
+                color: #0d6efd;
+                font-weight: 600;
+                line-height: 1;
+            }
 
 
 

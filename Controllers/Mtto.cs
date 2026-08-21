@@ -22,6 +22,22 @@ namespace EXTRUDERNUCLEOS.Controllers
             return View();
         }
 
+
+
+
+        private void CargarImpresorasBitacora()
+        {
+            ViewBag.ImpresorasBitacora = _context.Impresoras
+                .Where(x =>
+                    !string.IsNullOrWhiteSpace(x.Codigo) &&
+                    (x.Tipo == "VIDEOJET" || x.Tipo == "LINX"))
+                .ToList();
+        }
+
+
+
+
+
         //Bitacora de mantenimiento preventivo y correctivo
         public IActionResult Bitacora(bool editar = false, int? filtroId = null)
         {
@@ -29,18 +45,26 @@ namespace EXTRUDERNUCLEOS.Controllers
 
             if (filtroId.HasValue && filtroId.Value > 0)
             {
-                registros = registros.Where(r => r.IdVideojet == filtroId.Value);
+                registros = registros
+                    .Where(r => r.IdVideojet == filtroId.Value);
             }
 
             var lista = registros
-            .OrderByDescending(r => r.Id)
-            .Take(8)
-            .ToList();
+                .OrderByDescending(r => r.Id)
+                .Take(8)
+                .ToList();
 
             ViewBag.ModoEdicion = editar;
             ViewBag.FiltroId = filtroId;
-
             ViewBag.SinRegistros = !lista.Any();
+
+
+            // =========================================
+            // LLENAR SELECT VIDEOJET + LINX
+            // =========================================
+
+            CargarImpresorasBitacora();
+
 
             return View(lista);
         }
@@ -53,7 +77,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
 
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
 
             // ==========================
             // NUEVO REGISTRO
@@ -143,7 +167,7 @@ namespace EXTRUDERNUCLEOS.Controllers
             ViewBag.ModoEdicion = false;
             ViewBag.SinRegistros = !lista.Any();
 
-            return View("Bitacora", lista);
+            return RedirectToAction(nameof(Bitacora));
         }
 
 
@@ -152,7 +176,7 @@ namespace EXTRUDERNUCLEOS.Controllers
         {
 
         
-            var hoy =ObtenerHoraMonterrey();
+            var hoy =ObtenerHoraMatamoros();
 
             var registros = _context.Bitacoras
                 .Where(x => x.Fecha.Month == hoy.Month &&
@@ -181,7 +205,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult HistorialMes()
         {
-            var hoy = ObtenerHoraMonterrey();
+            var hoy = ObtenerHoraMatamoros();
 
             var registros = _context.Impresoras
                 .Where(x => x.Fecha.Month == hoy.Month
@@ -225,7 +249,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                 !FiltrarVideojet &&
                 !FiltrarFechas)
             {
-                var hoy = ObtenerHoraMonterrey();
+                var hoy = ObtenerHoraMatamoros();
 
                 consulta = consulta.Where(x =>
                     x.Fecha.Month == hoy.Month &&
@@ -441,7 +465,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                     return File(
                         stream.ToArray(),
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        $"Bitacora_{ObtenerHoraMonterrey:yyyyMMdd_HHmmss}.xlsx");
+                        $"Bitacora_{ObtenerHoraMatamoros:yyyyMMdd_HHmmss}.xlsx");
                 }
             }
         }
@@ -450,7 +474,7 @@ namespace EXTRUDERNUCLEOS.Controllers
 
         public IActionResult Taller()
         {
-            var ahora = ObtenerHoraMonterrey();
+            var ahora = ObtenerHoraMatamoros();
             
             var impresoras = _context.Impresoras.ToList();
 
@@ -465,7 +489,7 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Codigo = string.Empty,
                     InkCoreRemainingHours = 0,
                     Downtime = 0,
-                    Comentario = string.Empty,
+                    Comentario = "SIN COMENTARIOS",
                     Fecha = ahora.Date,
                     Hora = ahora.TimeOfDay
                 });
@@ -483,9 +507,9 @@ namespace EXTRUDERNUCLEOS.Controllers
                     Codigo = string.Empty,
                     InkCoreRemainingHours = 0,
                     Downtime = 0,
-                    Comentario = string.Empty,
-                    Fecha = DateTime.Now.Date,
-                    Hora = DateTime.Now.TimeOfDay
+                    Comentario = "SIN COMENTARIOS",
+                    Fecha = ahora.Date,
+                    Hora = ahora.TimeOfDay
                 });
                 _context.SaveChanges();
             }
@@ -501,11 +525,15 @@ namespace EXTRUDERNUCLEOS.Controllers
             return View(modelo);
         }
 
-        private DateTime ObtenerHoraMonterrey()
+        private DateTime ObtenerHoraMatamoros()
         {
-            string zona = OperatingSystem.IsWindows() ? "Central Standard Time (Mexico)" : "America/Monterrey";
-            var zonaMonterrey =TimeZoneInfo.FindSystemTimeZoneById(zona);
-            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaMonterrey);
+            string zona = OperatingSystem.IsWindows()
+                ? "Central Standard Time"
+                : "America/Matamoros";
+
+            var zonaMatamoros = TimeZoneInfo.FindSystemTimeZoneById(zona);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaMatamoros);
         }
 
         public IActionResult Videos()

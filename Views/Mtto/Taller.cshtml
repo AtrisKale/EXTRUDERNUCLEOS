@@ -48,13 +48,38 @@
 
                     <div class="card-body">
 
-                        <h5 class="card-title">
-                            TALLER DE IMPRESORAS VIDEOJET
-                        </h5>
+                        <!-- TÍTULO + CHECKBOX ADITIVO -->
+                        <div class="titulo-con-aditivo">
+
+                            <h5 class="card-title">
+                                TALLER DE IMPRESORAS VIDEOJET
+                            </h5>
+
+                            <div class="aditivo-titulo">
+
+                                <input type="checkbox"
+                                       name="impresoras[0].Additive"
+                                       value="true"
+                                       class="form-check-input"
+                                       checked="@(videojet?.Additive == true)" />
+
+                                <input type="hidden"
+                                       name="impresoras[0].Additive"
+                                       value="false" />
+
+                                <label>
+                                    Aditivo
+                                </label>
+
+                            </div>
+
+                        </div>
+
 
                         <input type="hidden"
                                name="impresoras[0].Id"
                                value="@videojet?.Id" />
+
 
                         <div class="row mb-2">
 
@@ -66,6 +91,7 @@
                                        class="form-control form-control-sm text-center" />
                             </div>
 
+
                             <div class="col-6">
                                 <label>Horas de núcleo restantes</label>
 
@@ -75,6 +101,7 @@
                             </div>
 
                         </div>
+
 
                         <div class="row mb-2">
 
@@ -89,6 +116,7 @@
                                        class="form-control form-control-sm text-center" />
                             </div>
 
+
                             <div class="col-6">
                                 <label>Comentarios</label>
 
@@ -98,6 +126,7 @@
                             </div>
 
                         </div>
+
 
                         <input type="hidden"
                                name="impresoras[0].LocationExtru"
@@ -126,7 +155,6 @@
                     </div>
                 </div>
             </div>
-
 
             <!-- CARD LINX -->
             <div class="@claseCard">
@@ -186,6 +214,7 @@
 
 
             <!-- CARD TERCERA IMPRESORA -->
+            <!-- CARD TERCERA IMPRESORA -->
             @if (tercera != null)
             {
             <div class="@claseCard">
@@ -216,13 +245,41 @@
 
                     <div class="card-body">
 
-                        <h5 class="card-title">
-                            IMPRESORA ADICIONAL - @tercera.Tipo
-                        </h5>
+                        <!-- TITULO + ADITIVO SOLO SI ES VIDEOJET -->
+                        <div class="titulo-con-aditivo">
+
+                            <h5 class="card-title">
+                                IMPRESORA ADICIONAL - @tercera.Tipo
+                            </h5>
+
+                            @if (tercera.Tipo == "VIDEOJET")
+                            {
+                            <div class="aditivo-titulo">
+
+                                <input type="checkbox"
+                                       name="impresoras[2].Additive"
+                                       value="true"
+                                       class="form-check-input"
+                                       checked="@(tercera.Additive)" />
+
+                                <input type="hidden"
+                                       name="impresoras[2].Additive"
+                                       value="false" />
+
+                                <label>
+                                    Aditivo
+                                </label>
+
+                            </div>
+                            }
+
+                        </div>
+
 
                         <input type="hidden"
                                name="impresoras[2].Id"
                                value="@tercera.Id" />
+
 
                         <div class="row mb-2">
 
@@ -269,6 +326,7 @@
                                        class="form-control form-control-sm text-center" />
 
                             </div>
+
 
                             <div class="col-6">
 

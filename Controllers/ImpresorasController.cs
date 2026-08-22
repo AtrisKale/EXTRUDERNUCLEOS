@@ -207,7 +207,7 @@ namespace EXTRUDERNUCLEOS.Controllers
            var ahora = ObtenerHoraMatamoros();
 
             // El día operativo comienza a las 7:00 AM
-            if (ahora.TimeOfDay < TimeSpan.FromHours(7))
+            if (ahora.TimeOfDay < TimeSpan.FromHours(8))
             {
                 return ahora.Date.AddDays(-1);
             }
